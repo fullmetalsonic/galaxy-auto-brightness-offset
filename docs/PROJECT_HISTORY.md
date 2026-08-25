@@ -6,7 +6,9 @@
 - AAR 메타데이터를 기준으로 API 36 호환 안정 의존성 조합으로 고정
 - 앱 버전을 1.0.1로 올리고 로컬 Debug·Release·단위시험·Lint 재검증
 - 새 APK의 버전·권한·v2 서명·SHA-256 재감사
-- GitHub Actions 성공과 Release 재다운로드 해시는 게시 후 최종 기록
+- GitHub Actions 실행 `32866305890`: SDK 설치·단위시험·Lint·Debug 빌드·APK 업로드 PASS
+- GitHub 액션 런타임을 현재 안정 주버전으로 갱신하여 Node 20 사용 경고 제거
+- v1.0.1 Release 재다운로드 해시는 게시 후 별도 확인
 
 ## 2026-08-26 · GitHub Public 게시
 

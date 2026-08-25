@@ -46,4 +46,4 @@
 - 잘못된 기존 접근: 기본 채널 실패 후 `--channel=3` 미리보기 채널만 추가하면 설치될 것으로 판단했으나 같은 오류 재현
 - 수정 내용: AAR 메타데이터의 `minCompileSdk`를 확인하여 API 36 호환 최신 안정 조합으로 고정하고 CI도 `platforms;android-36`을 설치하도록 변경
 - 자동 재발방지 장치: 공개 안정 채널에서 설치 가능한 SDK만 CI에 사용하고 `checkDebugAarMetadata`를 빌드 과정에서 실행
-- 재시험 결과: 로컬 API 36 전체 검증 PASS. GitHub Actions 재실행 결과는 v1.0.1 게시 후 기록
+- 재시험 결과: 로컬 API 36 전체 검증 PASS. GitHub Actions 실행 `32866305890`에서 SDK 설치·단위시험·Lint·Debug 빌드·APK 업로드 모두 PASS
