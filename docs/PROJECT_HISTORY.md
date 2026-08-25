@@ -8,7 +8,8 @@
 - 새 APK의 버전·권한·v2 서명·SHA-256 재감사
 - GitHub Actions 실행 `32866305890`: SDK 설치·단위시험·Lint·Debug 빌드·APK 업로드 PASS
 - GitHub 액션 런타임을 현재 안정 주버전으로 갱신하여 Node 20 사용 경고 제거
-- v1.0.1 Release 재다운로드 해시는 게시 후 별도 확인
+- v1.0.1 Release 공개 HTTP 200 확인
+- Release APK 재다운로드 결과 18,608,031 bytes 및 SHA-256 `BC5E976E617FFCD6BAE5F453E51607171F0202B06D83492D59B40100751845D3`로 로컬 원본과 일치
 
 ## 2026-08-26 · GitHub Public 게시
 

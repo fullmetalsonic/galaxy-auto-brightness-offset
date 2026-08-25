@@ -34,6 +34,8 @@
 - REQUIREMENT CHECK: PASS, 실기기 항목 제외
 - REGRESSION CHECK: PASS, 최초 버전의 자동시험 범위
 - REVIEW: PASS, 소스 정적 검토 범위
+- GITHUB ACTIONS: PASS, 실행 `32866832720`
+- RELEASE DOWNLOAD: PASS, 공개 HTTP 200 및 로컬 원본과 바이트·SHA-256 일치
 - 미해결 CRITICAL/HIGH: 0건
 - 폴드8 실제 화면 밝기: 현장 검증 필요
 - 실제 UI 화면 캡처: 검증 불가, 에뮬레이터 이미지 및 기기 미연결
@@ -63,4 +65,5 @@
 - GitHub: `https://github.com/fullmetalsonic/galaxy-auto-brightness-offset`
 - 저장소 가시성: Public
 - Release: `https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/tag/v1.0.1`
+- 직접 다운로드: `https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/download/v1.0.1/AutoBrightnessOffset-v1.0.1-debug.apk`
 - 회사 메일: 발송하지 않음
