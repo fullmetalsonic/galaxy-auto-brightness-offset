@@ -1,6 +1,7 @@
 package com.fullmetalsonic.brightnessoffset.ui
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -38,6 +39,7 @@ data class BrightnessUiState(
 
 class BrightnessViewModel(
     private val repository: BrightnessRepositoryContract,
+    private val appContext: Context,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(BrightnessUiState())
     val uiState: StateFlow<BrightnessUiState> = _uiState.asStateFlow()
@@ -91,7 +93,7 @@ class BrightnessViewModel(
         _uiState.update { it.copy(message = null, messageIsError = false) }
     }
 
-    fun diagnosticText(): String = DiagnosticReport.create(_uiState.value.snapshot)
+    fun diagnosticText(): String = DiagnosticReport.create(appContext, _uiState.value.snapshot)
 
     private suspend fun handleResult(result: OperationResult) {
         val snapshot = withContext(Dispatchers.IO) { repository.snapshot() }
@@ -122,6 +124,7 @@ class BrightnessViewModel(
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
                     return BrightnessViewModel(
                         BrightnessRepository(application.applicationContext),
+                        application.applicationContext,
                     ) as T
                 }
             }

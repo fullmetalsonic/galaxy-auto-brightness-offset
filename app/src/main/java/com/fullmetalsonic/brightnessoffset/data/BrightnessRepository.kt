@@ -2,6 +2,7 @@ package com.fullmetalsonic.brightnessoffset.data
 
 import android.content.Context
 import android.provider.Settings
+import com.fullmetalsonic.brightnessoffset.R
 import com.fullmetalsonic.brightnessoffset.domain.AdjustmentScale
 import com.fullmetalsonic.brightnessoffset.domain.BrightnessSnapshot
 import com.fullmetalsonic.brightnessoffset.domain.FailureReason
@@ -56,13 +57,13 @@ class BrightnessRepository(
         if (!Settings.System.canWrite(context)) {
             return OperationResult.Failure(
                 FailureReason.PERMISSION_REQUIRED,
-                "시스템 설정 변경 권한이 필요합니다.",
+                context.getString(R.string.error_permission_apply),
             )
         }
         if (!isAutomaticMode()) {
             return OperationResult.Failure(
                 FailureReason.AUTOMATIC_MODE_REQUIRED,
-                "자동 밝기를 먼저 켜 주세요.",
+                context.getString(R.string.error_adaptive_required),
             )
         }
 
@@ -75,7 +76,7 @@ class BrightnessRepository(
             if (!accepted) {
                 return OperationResult.Failure(
                     FailureReason.WRITE_REJECTED,
-                    "기기가 보정값 변경을 거부했습니다.",
+                    context.getString(R.string.error_write_rejected),
                 )
             }
 
@@ -83,7 +84,7 @@ class BrightnessRepository(
             if (!AdjustmentScale.isSame(verified, normalized)) {
                 return OperationResult.Failure(
                     FailureReason.VERIFICATION_FAILED,
-                    "적용 후 읽은 값이 요청값과 다릅니다.",
+                    context.getString(R.string.error_apply_verification),
                 )
             }
 
@@ -92,11 +93,14 @@ class BrightnessRepository(
                 applied = verified,
                 wasManaged = wasManaged,
             )
-            OperationResult.Success(verified, "보정값을 적용하고 다시 확인했습니다.")
+            OperationResult.Success(
+                verified,
+                context.getString(R.string.success_applied),
+            )
         }.getOrElse { error ->
             OperationResult.Failure(
                 FailureReason.UNKNOWN,
-                error.message ?: "알 수 없는 오류가 발생했습니다.",
+                error.message ?: context.getString(R.string.error_unknown),
             )
         }
     }
@@ -105,13 +109,13 @@ class BrightnessRepository(
         if (!Settings.System.canWrite(context)) {
             return OperationResult.Failure(
                 FailureReason.PERMISSION_REQUIRED,
-                "복원하려면 시스템 설정 변경 권한이 필요합니다.",
+                context.getString(R.string.error_permission_restore),
             )
         }
         val original = managementPreferences.originalAdjustment
             ?: return OperationResult.Failure(
                 FailureReason.NO_ORIGINAL_VALUE,
-                "저장된 원래 값이 없습니다.",
+                context.getString(R.string.error_no_original),
             )
 
         return runCatching {
@@ -119,22 +123,25 @@ class BrightnessRepository(
             if (!accepted) {
                 return OperationResult.Failure(
                     FailureReason.WRITE_REJECTED,
-                    "기기가 원래 값 복원을 거부했습니다.",
+                    context.getString(R.string.error_restore_rejected),
                 )
             }
             val verified = readAdjustment()
             if (!AdjustmentScale.isSame(verified, original)) {
                 return OperationResult.Failure(
                     FailureReason.VERIFICATION_FAILED,
-                    "복원 후 읽은 값이 원래 값과 다릅니다.",
+                    context.getString(R.string.error_restore_verification),
                 )
             }
             managementPreferences.clearSession()
-            OperationResult.Success(verified, "앱 사용 전 원래 값으로 복원했습니다.")
+            OperationResult.Success(
+                verified,
+                context.getString(R.string.success_restored),
+            )
         }.getOrElse { error ->
             OperationResult.Failure(
                 FailureReason.UNKNOWN,
-                error.message ?: "복원 중 알 수 없는 오류가 발생했습니다.",
+                error.message ?: context.getString(R.string.error_unknown_restore),
             )
         }
     }

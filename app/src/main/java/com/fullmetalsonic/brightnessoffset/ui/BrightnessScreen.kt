@@ -70,6 +70,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
@@ -78,6 +79,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.core.net.toUri
+import com.fullmetalsonic.brightnessoffset.R
 import com.fullmetalsonic.brightnessoffset.domain.AdjustmentScale
 import com.fullmetalsonic.brightnessoffset.domain.BrightnessSnapshot
 import com.fullmetalsonic.brightnessoffset.ui.theme.Success
@@ -109,13 +111,16 @@ fun BrightnessApp() {
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "자동 밝기 보정",
+                        text = stringResource(R.string.app_name),
                         style = MaterialTheme.typography.titleMedium,
                     )
                 },
                 actions = {
                     IconButton(onClick = viewModel::refresh) {
-                        Icon(Icons.Rounded.Refresh, contentDescription = "상태 새로고침")
+                        Icon(
+                            Icons.Rounded.Refresh,
+                            contentDescription = stringResource(R.string.refresh_status),
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -265,14 +270,15 @@ private fun BrightnessContent(
 @Composable
 private fun HeroCard(snapshot: BrightnessSnapshot) {
     val ready = snapshot.canWriteSettings && snapshot.isAutomaticMode && snapshot.readError == null
-    val statusText = when {
-        snapshot.readError != null -> "상태 확인 오류"
-        !snapshot.canWriteSettings -> "권한 설정 필요"
-        !snapshot.isAutomaticMode -> "자동 밝기 꺼짐"
-        snapshot.externalChangeDetected -> "외부 변경 감지"
-        snapshot.isManaged -> "보정 적용 중"
-        else -> "적용 준비 완료"
+    val statusTextId = when {
+        snapshot.readError != null -> R.string.status_error
+        !snapshot.canWriteSettings -> R.string.permission_required
+        !snapshot.isAutomaticMode -> R.string.adaptive_brightness_off
+        snapshot.externalChangeDetected -> R.string.external_change_detected
+        snapshot.isManaged -> R.string.offset_active
+        else -> R.string.ready_to_apply
     }
+    val statusText = stringResource(statusTextId)
     val statusColor = when {
         snapshot.readError != null -> MaterialTheme.colorScheme.error
         ready -> Success
@@ -308,10 +314,10 @@ private fun HeroCard(snapshot: BrightnessSnapshot) {
             }
             Spacer(Modifier.width(18.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text("내 눈에 맞는 자동 밝기", style = MaterialTheme.typography.titleLarge)
+                Text(stringResource(R.string.hero_title), style = MaterialTheme.typography.titleLarge)
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    "주변 밝기 대응은 그대로 두고 전체 밝기 곡선만 보정합니다.",
+                    stringResource(R.string.hero_description),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.78f),
                 )
@@ -338,20 +344,28 @@ private fun RequirementsCard(
     onOpenPermission: () -> Unit,
     onOpenDisplaySettings: () -> Unit,
 ) {
-    AppCard(title = "사용 준비", icon = Icons.Rounded.LockOpen) {
+    AppCard(title = stringResource(R.string.setup), icon = Icons.Rounded.LockOpen) {
         RequirementRow(
-            title = "시스템 설정 변경",
-            description = if (snapshot.canWriteSettings) "권한이 허용되어 있습니다." else "보정값 적용에 필요한 특별 권한입니다.",
+            title = stringResource(R.string.modify_system_settings),
+            description = if (snapshot.canWriteSettings) {
+                stringResource(R.string.permission_granted)
+            } else {
+                stringResource(R.string.permission_description)
+            },
             passed = snapshot.canWriteSettings,
-            actionLabel = if (snapshot.canWriteSettings) null else "권한 열기",
+            actionLabel = if (snapshot.canWriteSettings) null else stringResource(R.string.open_permission),
             onAction = onOpenPermission,
         )
         HorizontalDivider(Modifier.padding(vertical = 14.dp))
         RequirementRow(
-            title = "자동 밝기",
-            description = if (snapshot.isAutomaticMode) "시스템 자동 밝기가 켜져 있습니다." else "화면 설정에서 자동 밝기를 켜 주세요.",
+            title = stringResource(R.string.adaptive_brightness),
+            description = if (snapshot.isAutomaticMode) {
+                stringResource(R.string.adaptive_brightness_on)
+            } else {
+                stringResource(R.string.enable_adaptive_brightness)
+            },
             passed = snapshot.isAutomaticMode,
-            actionLabel = if (snapshot.isAutomaticMode) null else "화면 설정",
+            actionLabel = if (snapshot.isAutomaticMode) null else stringResource(R.string.display_settings),
             onAction = onOpenDisplaySettings,
         )
     }
@@ -401,7 +415,7 @@ private fun CorrectionCard(
         state.snapshot.readError == null && !state.isApplying
     val changed = !AdjustmentScale.isSame(state.draftAdjustment, state.snapshot.currentAdjustment)
 
-    AppCard(title = "보정 강도", icon = Icons.Rounded.SettingsBrightness) {
+    AppCard(title = stringResource(R.string.offset_strength), icon = Icons.Rounded.SettingsBrightness) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -409,7 +423,11 @@ private fun CorrectionCard(
         ) {
             Column {
                 Text(
-                    AdjustmentScale.directionLabel(animatedValue),
+                    when {
+                        AdjustmentScale.points(animatedValue) > 0 -> stringResource(R.string.brighter)
+                        AdjustmentScale.points(animatedValue) < 0 -> stringResource(R.string.darker)
+                        else -> stringResource(R.string.neutral)
+                    },
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -421,7 +439,10 @@ private fun CorrectionCard(
                 }
             }
             Text(
-                "현재 시스템 값 ${AdjustmentScale.rawValue(state.snapshot.currentAdjustment)}",
+                stringResource(
+                    R.string.system_value,
+                    AdjustmentScale.rawValue(state.snapshot.currentAdjustment),
+                ),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -435,9 +456,9 @@ private fun CorrectionCard(
             steps = 19,
         )
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("더 어둡게", style = MaterialTheme.typography.bodyMedium)
-            Text("보정 없음", style = MaterialTheme.typography.bodyMedium)
-            Text("더 밝게", style = MaterialTheme.typography.bodyMedium)
+            Text(stringResource(R.string.darker), style = MaterialTheme.typography.bodyMedium)
+            Text(stringResource(R.string.neutral), style = MaterialTheme.typography.bodyMedium)
+            Text(stringResource(R.string.brighter), style = MaterialTheme.typography.bodyMedium)
         }
         Spacer(Modifier.height(16.dp))
         PresetRow(onDraftChange)
@@ -445,13 +466,13 @@ private fun CorrectionCard(
 
         if (state.snapshot.externalChangeDetected) {
             NoticeBox(
-                text = "앱 적용 후 시스템에서 값이 바뀌었습니다. 현재 값을 기준으로 다시 적용할 수 있습니다.",
+                text = stringResource(R.string.external_change_notice),
                 isError = false,
             )
             Spacer(Modifier.height(14.dp))
         }
         state.snapshot.readError?.let { error ->
-            NoticeBox("설정 읽기 실패: $error", isError = true)
+            NoticeBox(stringResource(R.string.read_setting_failed, error), isError = true)
             Spacer(Modifier.height(14.dp))
         }
 
@@ -469,7 +490,11 @@ private fun CorrectionCard(
                 )
                 Spacer(Modifier.width(10.dp))
             }
-            Text(if (changed) "선택한 보정 적용" else "현재 보정 관리 시작")
+            Text(
+                stringResource(
+                    if (changed) R.string.apply_selected_offset else R.string.manage_current_offset,
+                ),
+            )
         }
 
         if (state.snapshot.isManaged && state.snapshot.originalAdjustment != null) {
@@ -482,12 +507,12 @@ private fun CorrectionCard(
             ) {
                 Icon(Icons.Rounded.RestartAlt, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
-                Text("앱 사용 전 값으로 복원")
+                Text(stringResource(R.string.restore_original_value))
             }
         }
         Spacer(Modifier.height(10.dp))
         Text(
-            "숫자는 보정 강도이며 밝기 퍼센트가 아닙니다. 처음에는 +10부터 시험하는 것을 권장합니다.",
+            stringResource(R.string.offset_explanation),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -518,15 +543,18 @@ private fun RebootCard(
     snapshot: BrightnessSnapshot,
     onRestoreOnBootChange: (Boolean) -> Unit,
 ) {
-    AppCard(title = "유지 설정", icon = Icons.Rounded.AutoMode) {
+    AppCard(title = stringResource(R.string.persistence), icon = Icons.Rounded.AutoMode) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
-                Text("재부팅 후 다시 확인", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    stringResource(R.string.reapply_after_reboot),
+                    style = MaterialTheme.typography.titleMedium,
+                )
                 Text(
                     if (snapshot.isManaged) {
-                        "재부팅 시 마지막 적용값을 한 번 다시 적용합니다."
+                        stringResource(R.string.reapply_description)
                     } else {
-                        "보정값을 한 번 적용한 뒤 사용할 수 있습니다."
+                        stringResource(R.string.apply_once_first)
                     },
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -540,7 +568,7 @@ private fun RebootCard(
         }
         Spacer(Modifier.height(10.dp))
         Text(
-            "상시 서비스는 사용하지 않습니다. 시스템 설정이 유지되면 추가 동작 없이 끝납니다.",
+            stringResource(R.string.no_always_on_service),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -549,22 +577,30 @@ private fun RebootCard(
 
 @Composable
 private fun DiagnosticsCard(snapshot: BrightnessSnapshot, onCopy: () -> Unit) {
-    AppCard(title = "기기 진단", icon = Icons.Rounded.Info) {
-        DiagnosticRow("현재 보정값", AdjustmentScale.rawValue(snapshot.currentAdjustment))
+    AppCard(title = stringResource(R.string.diagnostics), icon = Icons.Rounded.Info) {
         DiagnosticRow(
-            "앱 사용 전 값",
-            snapshot.originalAdjustment?.let(AdjustmentScale::rawValue) ?: "기록 없음",
+            stringResource(R.string.current_offset),
+            AdjustmentScale.rawValue(snapshot.currentAdjustment),
         )
         DiagnosticRow(
-            "마지막 적용값",
-            snapshot.lastAppliedAdjustment?.let(AdjustmentScale::rawValue) ?: "기록 없음",
+            stringResource(R.string.original_value),
+            snapshot.originalAdjustment?.let(AdjustmentScale::rawValue)
+                ?: stringResource(R.string.not_recorded),
         )
-        DiagnosticRow("외부 변경", if (snapshot.externalChangeDetected) "감지됨" else "없음")
+        DiagnosticRow(
+            stringResource(R.string.last_applied),
+            snapshot.lastAppliedAdjustment?.let(AdjustmentScale::rawValue)
+                ?: stringResource(R.string.not_recorded),
+        )
+        DiagnosticRow(
+            stringResource(R.string.external_change),
+            stringResource(if (snapshot.externalChangeDetected) R.string.detected else R.string.none),
+        )
         Spacer(Modifier.height(14.dp))
         OutlinedButton(onClick = onCopy, modifier = Modifier.fillMaxWidth()) {
             Icon(Icons.Rounded.ContentCopy, contentDescription = null)
             Spacer(Modifier.width(8.dp))
-            Text("진단 정보 복사")
+            Text(stringResource(R.string.copy_diagnostics))
         }
     }
 }
@@ -584,15 +620,15 @@ private fun DiagnosticRow(label: String, value: String) {
 
 @Composable
 private fun LimitsCard() {
-    AppCard(title = "적용 범위", icon = Icons.Rounded.Brightness6) {
+    AppCard(title = stringResource(R.string.scope_and_limits), icon = Icons.Rounded.Brightness6) {
         Text(
-            "자동 밝기 곡선을 전반적으로 보정합니다. 야외 고휘도, 발열 감광, 절전 모드, HDR, 앱별 밝기 제한은 시스템이 우선합니다.",
+            stringResource(R.string.limits_description),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Spacer(Modifier.height(10.dp))
         Text(
-            "네트워크와 개인정보 권한은 사용하지 않습니다.",
+            stringResource(R.string.privacy_description),
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.SemiBold,
         )
@@ -681,10 +717,12 @@ private fun openDisplaySettings(context: Context) {
 
 private fun copyDiagnostics(context: Context, text: String) {
     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-    clipboard.setPrimaryClip(ClipData.newPlainText("자동 밝기 보정 진단", text))
+    clipboard.setPrimaryClip(
+        ClipData.newPlainText(context.getString(R.string.diagnostics_clip_label), text),
+    )
 }
 
-@Preview(name = "커버 화면", widthDp = 360, heightDp = 780, showBackground = true)
+@Preview(name = "Cover screen", widthDp = 360, heightDp = 780, showBackground = true)
 @Composable
 private fun CoverScreenPreview() {
     BrightnessOffsetTheme(darkTheme = false) {
@@ -701,7 +739,7 @@ private fun CoverScreenPreview() {
     }
 }
 
-@Preview(name = "펼친 화면", widthDp = 840, heightDp = 900, showBackground = true)
+@Preview(name = "Unfolded screen", widthDp = 840, heightDp = 900, showBackground = true)
 @Composable
 private fun UnfoldedScreenPreview() {
     BrightnessOffsetTheme(darkTheme = true) {

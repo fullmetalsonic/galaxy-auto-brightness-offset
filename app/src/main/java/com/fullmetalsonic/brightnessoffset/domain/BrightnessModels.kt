@@ -29,12 +29,6 @@ object AdjustmentScale {
         }
     }
 
-    fun directionLabel(value: Float): String = when {
-        points(value) > 0 -> "더 밝게"
-        points(value) < 0 -> "더 어둡게"
-        else -> "보정 없음"
-    }
-
     fun rawValue(value: Float): String = String.format(Locale.US, "%.2f", value)
 }
 

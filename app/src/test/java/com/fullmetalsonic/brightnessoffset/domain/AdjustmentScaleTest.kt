@@ -26,10 +26,10 @@ class AdjustmentScaleTest {
     }
 
     @Test
-    fun directionLabel_doesNotDescribePointsAsPercent() {
-        assertEquals("더 밝게", AdjustmentScale.directionLabel(0.1f))
-        assertEquals("더 어둡게", AdjustmentScale.directionLabel(-0.1f))
-        assertEquals("보정 없음", AdjustmentScale.directionLabel(0f))
+    fun points_expressesStrengthWithoutLocaleSpecificText() {
+        assertEquals(10, AdjustmentScale.points(0.1f))
+        assertEquals(-10, AdjustmentScale.points(-0.1f))
+        assertEquals(0, AdjustmentScale.points(0f))
     }
 
     @Test
