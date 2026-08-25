@@ -9,6 +9,7 @@
 - Debug·Release 빌드, JVM 단위시험 5건, Lint, R8·리소스 축소 PASS
 - APK 리소스 감사에서 기본 라벨 `Auto Brightness Offset`, `ko` 라벨 `자동 밝기 보정` 확인
 - GitHub Actions 실행 `32868790614`: SDK 설치·단위시험·Lint·Debug 빌드·APK 업로드 PASS
+- v1.1.0 Release 공개 HTTP 200 확인, 재다운로드한 APK의 바이트·SHA-256이 로컬 원본과 일치
 - 실제 폴드8 언어 전환 화면과 밝기 반영은 현장 검증 필요
 
 ## 2026-08-26 · v1.0.1 재현 가능한 CI 보강
