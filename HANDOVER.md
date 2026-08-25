@@ -35,8 +35,8 @@
 - REQUIREMENT CHECK: PASS, 실기기 항목 제외
 - REGRESSION CHECK: PASS, 최초 버전의 자동시험 범위
 - REVIEW: PASS, 소스 정적 검토 범위
-- GITHUB ACTIONS: PASS, 실행 `32866832720`
-- RELEASE DOWNLOAD: PASS, 공개 HTTP 200 및 로컬 원본과 바이트·SHA-256 일치
+- GITHUB ACTIONS: PASS, 실행 `32868790614`
+- RELEASE DOWNLOAD: v1.1.0 게시 후 확인 예정
 - 미해결 CRITICAL/HIGH: 0건
 - 폴드8 실제 화면 밝기: 현장 검증 필요
 - 실제 UI 화면 캡처: 검증 불가, 에뮬레이터 이미지 및 기기 미연결
