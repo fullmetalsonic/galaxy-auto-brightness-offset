@@ -2,11 +2,11 @@
 
 [![Android CI](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/actions/workflows/android.yml/badge.svg)](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/actions/workflows/android.yml)
 
-**[갤럭시 설치용 APK 바로 다운로드](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/download/v1.0.0/AutoBrightnessOffset-v1.0.0-debug.apk)**
+**[갤럭시 설치용 APK 바로 다운로드](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/download/v1.0.1/AutoBrightnessOffset-v1.0.1-debug.apk)**
 
 갤럭시의 자동 밝기를 끄지 않고, Android가 계산한 자동 밝기 곡선을 전반적으로 더 밝거나 어둡게 보정하는 로컬 Android 앱입니다.
 
-현재 버전은 **1.0.0**입니다. PC에서 빌드·단위시험·Lint·Release 축소 빌드까지 통과했지만, 갤럭시 Z Fold8의 One UI가 AOSP 보정 키를 실제 화면에 반영하는지는 실기기 검증이 필요합니다.
+현재 버전은 **1.0.1**입니다. PC와 GitHub Actions에서 빌드·단위시험·Lint를 통과했고, 로컬 Release 축소 빌드도 통과했습니다. 갤럭시 Z Fold8의 One UI가 AOSP 보정 키를 실제 화면에 반영하는지는 실기기 검증이 필요합니다.
 
 ## 주요 기능
 
@@ -38,7 +38,7 @@
 
 ## 설치 및 사용
 
-1. [GitHub Release 설치용 APK](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/download/v1.0.0/AutoBrightnessOffset-v1.0.0-debug.apk)를 폴드8에 내려받아 설치합니다.
+1. [GitHub Release 설치용 APK](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/download/v1.0.1/AutoBrightnessOffset-v1.0.1-debug.apk)를 폴드8에 내려받아 설치합니다.
 2. 앱을 열고 `시스템 설정 변경`의 `권한 열기`를 누릅니다.
 3. Android 설정에서 `자동 밝기 보정`을 허용합니다.
 4. `자동 밝기`가 꺼져 있으면 `화면 설정`을 눌러 켭니다.
@@ -71,6 +71,7 @@ Release APK는 서명되지 않았습니다. 실제 배포 전에는 사용자 �
 - [개인정보 및 권한](docs/PRIVACY.md)
 - [디버그·재발방지 대장](docs/DEBUG_LEDGER.md)
 - [누적 작업이력](docs/PROJECT_HISTORY.md)
+- [v1.0.1 릴리스 노트](docs/RELEASE_NOTES_v1.0.1.md)
 - [v1.0.0 릴리스 노트](docs/RELEASE_NOTES_v1.0.0.md)
 - [인수인계](HANDOVER.md)
 

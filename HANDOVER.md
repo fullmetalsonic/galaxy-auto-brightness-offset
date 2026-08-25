@@ -2,7 +2,7 @@
 
 ## 현재 상태
 
-갤럭시 Z Fold8용 자동 밝기 보정 앱 v1.0.0의 코드·UI·아이콘·권한·복원·진단·문서가 구현되었습니다. PC 검증은 통과했고 실제 폴드8의 One UI 반영 여부는 미검증입니다.
+갤럭시 Z Fold8용 자동 밝기 보정 앱 v1.0.1의 코드·UI·아이콘·권한·복원·진단·문서가 구현되었습니다. PC 검증은 통과했고 실제 폴드8의 One UI 반영 여부는 미검증입니다.
 
 ## 핵심 계약
 
@@ -38,7 +38,7 @@
 - 폴드8 실제 화면 밝기: 현장 검증 필요
 - 실제 UI 화면 캡처: 검증 불가, 에뮬레이터 이미지 및 기기 미연결
 
-설치용 산출물은 `dist/자동밝기보정-v1.0.0-debug.apk`이며 SHA-256은 `6AE4583E1A610FDB8169B9F746E2F6ED4AB2362D2F884F51C2508E00EFA7FD7A`입니다.
+설치용 산출물은 `dist/자동밝기보정-v1.0.1-debug.apk`이며 SHA-256은 `BC5E976E617FFCD6BAE5F453E51607171F0202B06D83492D59B40100751845D3`입니다.
 
 ## 다음 작업
 
@@ -62,5 +62,5 @@
 
 - GitHub: `https://github.com/fullmetalsonic/galaxy-auto-brightness-offset`
 - 저장소 가시성: Public
-- Release: `https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/tag/v1.0.0`
+- Release: `https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/tag/v1.0.1`
 - 회사 메일: 발송하지 않음

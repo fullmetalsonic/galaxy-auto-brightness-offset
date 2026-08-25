@@ -1,5 +1,13 @@
 # 누적 작업이력
 
+## 2026-08-26 · v1.0.1 재현 가능한 CI 보강
+
+- 공개 SDK 저장소에서 Android 37 플랫폼을 찾지 못해 GitHub Actions가 설치 단계에서 실패한 원인 확인
+- AAR 메타데이터를 기준으로 API 36 호환 안정 의존성 조합으로 고정
+- 앱 버전을 1.0.1로 올리고 로컬 Debug·Release·단위시험·Lint 재검증
+- 새 APK의 버전·권한·v2 서명·SHA-256 재감사
+- GitHub Actions 성공과 Release 재다운로드 해시는 게시 후 최종 기록
+
 ## 2026-08-26 · GitHub Public 게시
 
 - Public 저장소: `https://github.com/fullmetalsonic/galaxy-auto-brightness-offset`

@@ -40,10 +40,10 @@
 
 - 증상: 첫 Public 푸시의 Android CI가 SDK 설치 단계에서 실패
 - 재현 방법: GitHub Ubuntu runner에서 기본 채널로 `platforms;android-37` 설치
-- 직접 원인: GitHub runner의 기본 안정 채널 목록에 Android 37 플랫폼이 노출되지 않음
+- 직접 원인: GitHub runner의 공개 SDK 저장소에 Android 37 플랫폼이 노출되지 않음
 - 확인 증거: `Warning: Failed to find package 'platforms;android-37'`
 - 영향 범위: GitHub Actions 빌드만 실패하며 게시된 APK와 로컬 검증 결과에는 영향 없음
-- 잘못된 기존 접근: 기본 SDK 채널만 조회
-- 수정 내용: `sdkmanager --channel=3`으로 미리보기 채널까지 명시
-- 자동 재발방지 장치: CI 워크플로에 SDK 채널 인자를 고정
-- 재시험 결과: 다음 GitHub Actions 실행에서 확인
+- 잘못된 기존 접근: 기본 채널 실패 후 `--channel=3` 미리보기 채널만 추가하면 설치될 것으로 판단했으나 같은 오류 재현
+- 수정 내용: AAR 메타데이터의 `minCompileSdk`를 확인하여 API 36 호환 최신 안정 조합으로 고정하고 CI도 `platforms;android-36`을 설치하도록 변경
+- 자동 재발방지 장치: 공개 안정 채널에서 설치 가능한 SDK만 CI에 사용하고 `checkDebugAarMetadata`를 빌드 과정에서 실행
+- 재시험 결과: 로컬 API 36 전체 검증 PASS. GitHub Actions 재실행 결과는 v1.0.1 게시 후 기록
