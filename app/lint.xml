@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- API 37 is used for compilation, while target 36 is deliberate until Fold8 field validation. -->
+    <issue id="OldTargetApi" severity="ignore" />
+    <!-- Gradle 9.3.1 is the AGP 9.1.1-compatible, locally verified wrapper for this release. -->
+    <issue id="AndroidGradlePluginVersion" severity="ignore" />
+</lint>
