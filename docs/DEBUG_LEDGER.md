@@ -35,3 +35,15 @@
 - 수정 내용: 확인된 이전 데몬 두 개만 종료 후 clean과 Lint 재실행
 - 자동 재발방지 장치: 빌드 체인을 AGP 9.1.1·Gradle 9.3.1로 단일화하고 검증 스크립트에서 clean부터 순차 실행
 - 재시험 결과: Lint와 전체 검증 성공
+
+## DBG-004 GitHub Actions Android 37 SDK 미발견
+
+- 증상: 첫 Public 푸시의 Android CI가 SDK 설치 단계에서 실패
+- 재현 방법: GitHub Ubuntu runner에서 기본 채널로 `platforms;android-37` 설치
+- 직접 원인: GitHub runner의 기본 안정 채널 목록에 Android 37 플랫폼이 노출되지 않음
+- 확인 증거: `Warning: Failed to find package 'platforms;android-37'`
+- 영향 범위: GitHub Actions 빌드만 실패하며 게시된 APK와 로컬 검증 결과에는 영향 없음
+- 잘못된 기존 접근: 기본 SDK 채널만 조회
+- 수정 내용: `sdkmanager --channel=3`으로 미리보기 채널까지 명시
+- 자동 재발방지 장치: CI 워크플로에 SDK 채널 인자를 고정
+- 재시험 결과: 다음 GitHub Actions 실행에서 확인
