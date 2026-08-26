@@ -47,13 +47,16 @@ README와 설명서 이미지는 실제 Fold8 캡처에서 시스템 상태 표�
 - 빌드·서명: R8 최적화 Release, Android Debug 인증서, APK Signature Scheme v2·v3
 - Debug 전용 ADB 시험 Receiver: 미포함
 
-## 공개 후 확인 항목
+## 공개 후 확인 결과
 
-- GitHub 저장소 가시성: Public
-- `main` 커밋과 `v1.4.0` 태그 일치
-- GitHub Actions 성공
-- README 이미지와 한·영 설명서 공개 접근 가능
-- Release APK 익명 다운로드 가능
-- 내려받은 APK 크기·SHA-256이 로컬 파일과 일치
+- GitHub 저장소 가시성: Public, PASS
+- 공개 저장소: <https://github.com/fullmetalsonic/galaxy-auto-brightness-offset>
+- `v1.4.0` 태그: 기능·문서 커밋 `e68092347e2fc3d4f577913492634efc26d65cc2`, PASS
+- GitHub Actions: [run 32923140342](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/actions/runs/32923140342), PASS
+- README 한국어·영어 실제 화면: 익명 HTTP 200, PASS
+- 한국어·영어 상세 설명서: 익명 HTTP 200, PASS
+- Release: <https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/tag/v1.4.0>, 익명 HTTP 200, PASS
+- Release APK: 익명 HTTP 200, `3,466,647 bytes`, PASS
+- 공개 재다운로드 SHA-256: `7052CB8EC87544481D6CF9824F8B79D2243FBF901CB45246087814617D8931C9`, 로컬 원본과 일치
 
-공개 후 얻은 실제 URL, Actions 실행번호 및 최종 다운로드 해시 확인 결과는 누적이력과 인수인계 문서에 기록합니다.
+민감정보 문자열 검사는 현재 공개 대상과 기존 Git 이력에서 모두 일치 항목 0건이었습니다. 커밋 메일은 GitHub `noreply` 주소만 사용합니다.

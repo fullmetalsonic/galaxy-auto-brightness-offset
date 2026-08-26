@@ -13,7 +13,11 @@
 - 공개 이미지 대장과 공개 배포 감사 문서 추가
 - Debug 전용 ADB 시험 Receiver를 제외한 R8 최적화 Release APK를 Android Debug 인증서로 v2·v3 서명
 - 최적화 APK를 Fold8에 설치하고 Shizuku 사용자 서비스·`+50` 보정 관리 서비스 기동, Debug Receiver 미포함, 기기 `base.apk` SHA-256 일치 확인
-- 공개 전 전체 Git 이력의 민감정보, 문서 링크, CI, Release APK 재다운로드 해시는 별도 검증 후 기록
+- 현재 공개 대상과 전체 Git 이력의 기기 식별자·내부 경로·회사 메일·토큰 문자열 검사 PASS, 커밋 메일은 GitHub noreply만 확인
+- GitHub Actions `32923140342`의 Verify and build·APK 업로드 포함 전 단계 PASS
+- 저장소를 Public으로 전환하고 `e680923`에 `v1.4.0` 태그·Release 생성
+- 저장소, 한·영 설명서, 한국어·영어 README 이미지, Release 페이지의 익명 HTTP 200 확인
+- 공개 APK 재다운로드 `3,466,647 bytes`, SHA-256 `7052CB8EC87544481D6CF9824F8B79D2243FBF901CB45246087814617D8931C9`로 로컬 원본과 일치
 
 ## 2026-08-26 · v1.4.0 프리미엄 UI 디테일 보강
 

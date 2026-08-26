@@ -104,9 +104,12 @@ v1.4.0은 Galaxy Z Fold8에서 실제 밝기 보정이 동작합니다. 기존 `
 ## 게시와 발송
 
 - GitHub: `https://github.com/fullmetalsonic/galaxy-auto-brightness-offset`
-- 가시성: Private에서 Public 전환·v1.4.0 게시 작업 진행 중
-- 마지막 원격 Release: v1.1.0, 현재 기능과 다름
-- v1.4.0: 로컬·Fold8 설치·실기기 QA·한영 문서·개인정보 제거 이미지 준비 완료
+- 가시성: Public
+- 현재 Release: [v1.4.0](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/tag/v1.4.0)
+- 기능·문서 태그 커밋: `e68092347e2fc3d4f577913492634efc26d65cc2`
+- GitHub Actions: [32923140342](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/actions/runs/32923140342), PASS
+- 공개 저장소·한영 설명서·README 이미지·Release: 익명 HTTP 200 확인
+- 공개 APK 재다운로드 바이트·SHA-256: 로컬 원본과 일치
 - 상세 설명서: `docs/USER_GUIDE_KO.md`, `docs/USER_GUIDE_EN.md`
 - 회사 메일: 발송하지 않음
 
