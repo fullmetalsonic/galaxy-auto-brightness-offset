@@ -16,6 +16,16 @@
 
 삼성 갤럭시의 **자동 밝기를 계속 사용하면서**, 시스템이 주변 조도에 따라 정한 밝기를 일정한 성향으로 더 밝거나 어둡게 보정하는 로컬 Android 앱입니다.
 
+### 이런 경우에 적합합니다
+
+- 자동 밝기는 계속 사용하고 싶지만 화면이 항상 조금 어둡게 느껴지는 경우
+- 자동 밝기가 필요 이상으로 밝아 눈이 피로하거나 배터리 소모가 신경 쓰이는 경우
+- 사생활 보호필름(프라이버시 필름), 저반사 필름 또는 강화유리를 붙인 뒤 화면이 더 어둡게 느껴지는 경우
+- 갤럭시 Z 폴드·삼성 갤럭시에서 주변 밝기가 바뀔 때마다 밝기 슬라이더를 직접 조절하고 싶지 않은 경우
+- 시스템 자동 밝기의 변화 방식은 유지하면서 항상 일정한 밝기 성향만 더하거나 빼고 싶은 경우
+
+이 앱은 보호필름 자체의 투과율이나 시야각을 바꾸지 않습니다. 자동 밝기의 결과를 보정해 **체감상 어둡거나 밝은 화면을 조절**합니다.
+
 ### 다운로드
 
 - APK: [AutoBrightnessOffset-v1.4.0-release.apk](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/download/v1.4.0/AutoBrightnessOffset-v1.4.0-release.apk)
@@ -77,6 +87,16 @@
 
 **Auto Brightness Offset** keeps Samsung adaptive brightness enabled while shifting its result consistently brighter or darker. It is a local Android utility built for Samsung Galaxy devices and physically tested on a Galaxy Z Fold8.
 
+### Who this is for
+
+- Samsung adaptive brightness always feels a little too dark, but you still want it enabled
+- Auto brightness often feels too bright, causing eye strain or unnecessary battery use
+- A privacy screen protector, privacy filter, anti-glare film, or tempered glass makes the display feel dimmer
+- You use a Galaxy Z Fold or Samsung Galaxy and do not want to move the brightness slider whenever ambient light changes
+- You want to preserve the system's adaptive behavior while adding a consistent brighter or darker bias
+
+The app does not change a screen protector's light transmission or viewing angle. It compensates the adaptive-brightness result when the display **feels consistently too dim or too bright**.
+
 ### Download
 
 - APK: [AutoBrightnessOffset-v1.4.0-release.apk](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/download/v1.4.0/AutoBrightnessOffset-v1.4.0-release.apk)
@@ -115,7 +135,10 @@ The app reads ambient lux, queries Samsung's current adaptive-brightness target 
 
 Samsung outdoor boost, thermal dimming, power saving, HDR, and app-specific limits remain in control. Samsung's command output and private temporary-brightness API can change with One UI updates and may not work on other brands.
 
-Search terms: **Samsung adaptive brightness adjustment**, **Galaxy Z Fold brightness offset**, **Shizuku brightness controller**, **Android auto brightness curve**.
+### 검색어 / Search keywords
+
+- 한국어: **갤럭시 자동 밝기 어두움**, **삼성 자동 밝기 보정**, **자동 밝기 항상 어두움**, **자동 밝기 항상 밝음**, **사생활 보호필름 화면 어두움**, **프라이버시 필름 밝기**, **갤럭시 폴드 화면 밝기**
+- English: **Samsung adaptive brightness too dark**, **Samsung auto brightness too bright**, **privacy screen protector dim display**, **Galaxy brightness offset**, **Galaxy Z Fold adaptive brightness**, **Shizuku brightness controller**, **One UI brightness adjustment**
 
 ## Documents
 
