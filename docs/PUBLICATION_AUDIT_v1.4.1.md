@@ -58,4 +58,13 @@
 
 ## 공개 후 확인 결과
 
-이 절은 실제 GitHub 푸시, Actions 완료, Release 업로드와 익명 재다운로드 검증 후 최종 기록합니다.
+- 저장소 가시성: **Public**
+- 기능·문서 태그 커밋: `e4de65679da8241427833c9c02ef8e4cec824254`
+- GitHub Actions: [Android CI 32945280941](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/actions/runs/32945280941), `verify` PASS
+- 태그·Release: [v1.4.1](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/tag/v1.4.1), Draft 아님, Prerelease 아님
+- Release 자산: `AutoBrightnessOffset-v1.4.1-release.apk`, `3,474,839 bytes`
+- GitHub 자산 digest: `sha256:91b5700052decf3bccbc67b17684cf90df4b7c2955fcbd9a1ad1799da472bbd0`
+- 인증 없이 재다운로드한 APK와 로컬 원본 SHA-256: PASS, 일치
+- 저장소, Release, 한국어·영어 설명서, README 한국어·영어 이미지: HTTP 200
+- GitHub 검색 Topics: 자동 밝기, 화면 밝음·어두움, Samsung Galaxy, One UI, Shizuku, privacy screen protector 관련 20개 유지 확인
+- 공개 후 민감정보 검사: 기기 일련번호·로컬 경로·사설 IP·자격증명 검출 0건

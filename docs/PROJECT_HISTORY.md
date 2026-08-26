@@ -1,5 +1,14 @@
 # 누적 작업이력
 
+## 2026-08-26 · v1.4.1 공개 배포 완료
+
+- Public 저장소 `main`에 기능·문서 커밋 `e4de65679da8241427833c9c02ef8e4cec824254` 푸시
+- GitHub Actions Android CI `32945280941`의 Unit Test·Lint·Debug 빌드와 산출물 업로드 PASS
+- 검증 커밋에 `v1.4.1` 태그를 고정하고 최적화·서명 Release APK 공개
+- 저장소, Release, 한국어·영어 상세 설명서와 README 이미지 HTTP 200 확인
+- 공개 APK를 인증 없이 다시 내려받아 크기 `3,474,839 bytes`와 SHA-256 `91B570...2BBD0` 로컬 일치 확인
+- 자동 밝기, 화면이 너무 어둡거나 밝음, Galaxy·One UI·Shizuku·privacy screen protector 관련 GitHub Topics 20개 유지 확인
+
 ## 2026-08-26 · v1.4.1 Shizuku 연결 복구와 공개본 안정화
 
 - Shizuku 상태 Flow를 포그라운드 관리 서비스에서 구독해 서버 중지 즉시 센서 추적을 멈추고 `보정 일시 중지`로 전환

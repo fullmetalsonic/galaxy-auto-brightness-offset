@@ -120,11 +120,11 @@ v1.4.1은 Galaxy Z Fold8에서 실제 밝기 보정과 Shizuku 연결 중단·�
 
 - GitHub: `https://github.com/fullmetalsonic/galaxy-auto-brightness-offset`
 - 가시성: Public
-- 현재 Release: v1.4.0 공개, v1.4.1 공개 작업 중
-- v1.4.1 기능·문서 커밋: 공개 후 기록 예정
-- GitHub Actions: v1.4.1 푸시 후 기록 예정
-- 공개 저장소·한영 설명서·README 이미지·Release: v1.4.1 게시 후 확인 예정
-- 공개 APK 재다운로드 바이트·SHA-256: v1.4.1 게시 후 확인 예정
+- 현재 Release: [v1.4.1](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/tag/v1.4.1) 공개 완료
+- v1.4.1 기능·문서 태그 커밋: `e4de65679da8241427833c9c02ef8e4cec824254`
+- GitHub Actions: [32945280941](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/actions/runs/32945280941), PASS
+- 공개 저장소·한영 설명서·README 이미지·Release: 인증 없이 HTTP 200 확인
+- 공개 APK 재다운로드: `3,474,839 bytes`, SHA-256 `91B570...2BBD0`, 로컬 원본과 일치
 - 상세 설명서: `docs/USER_GUIDE_KO.md`, `docs/USER_GUIDE_EN.md`
 - 회사 메일: 발송하지 않음
 
