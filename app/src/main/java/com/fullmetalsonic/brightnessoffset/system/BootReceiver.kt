@@ -11,7 +11,14 @@ class BootReceiver : BroadcastReceiver() {
         val pendingResult = goAsync()
         Thread {
             try {
-                BrightnessRepository(context.applicationContext).reapplyAfterBoot()
+                val repository = BrightnessRepository(context.applicationContext)
+                when (intent.action) {
+                    Intent.ACTION_BOOT_COMPLETED -> {
+                        repository.markReapplyPending()
+                        repository.reapplyPendingIfReady()
+                    }
+                    Intent.ACTION_MY_PACKAGE_REPLACED -> repository.resumeManagedIfReady()
+                }
             } finally {
                 pendingResult.finish()
             }

@@ -8,8 +8,8 @@ import org.junit.Test
 class AdjustmentScaleTest {
     @Test
     fun normalize_clampsValuesToSafeRange() {
-        assertEquals(-0.5f, AdjustmentScale.normalize(-2f), 0.0001f)
-        assertEquals(0.5f, AdjustmentScale.normalize(2f), 0.0001f)
+        assertEquals(-1f, AdjustmentScale.normalize(-2f), 0.0001f)
+        assertEquals(1f, AdjustmentScale.normalize(2f), 0.0001f)
     }
 
     @Test
@@ -20,6 +20,8 @@ class AdjustmentScaleTest {
 
     @Test
     fun signedPoints_formatsDirectionClearly() {
+        assertEquals("+100", AdjustmentScale.signedPoints(1f))
+        assertEquals("-100", AdjustmentScale.signedPoints(-1f))
         assertEquals("+20", AdjustmentScale.signedPoints(0.2f))
         assertEquals("-20", AdjustmentScale.signedPoints(-0.2f))
         assertEquals("0", AdjustmentScale.signedPoints(0f))
@@ -36,5 +38,13 @@ class AdjustmentScaleTest {
     fun isSame_allowsSettingsRoundTripToleranceOnly() {
         assertTrue(AdjustmentScale.isSame(0.2f, 0.204f))
         assertFalse(AdjustmentScale.isSame(0.2f, 0.21f))
+    }
+
+    @Test
+    fun presets_coverSymmetricQuarterStrengths() {
+        assertEquals(
+            listOf(-0.75f, -0.5f, -0.25f, 0f, 0.25f, 0.5f, 0.75f),
+            AdjustmentScale.PRESETS,
+        )
     }
 }

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <receiver
+            android:name=".debug.DeviceTestReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.DUMP">
+            <intent-filter>
+                <action android:name="com.fullmetalsonic.brightnessoffset.debug.APPLY" />
+                <action android:name="com.fullmetalsonic.brightnessoffset.debug.CLEAR" />
+                <action android:name="com.fullmetalsonic.brightnessoffset.debug.SET_TEMPORARY_BRIGHTNESS" />
+                <action android:name="com.fullmetalsonic.brightnessoffset.debug.CLEAR_TEMPORARY_BRIGHTNESS" />
+                <action android:name="com.fullmetalsonic.brightnessoffset.debug.SAMPLE_AND_APPLY" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

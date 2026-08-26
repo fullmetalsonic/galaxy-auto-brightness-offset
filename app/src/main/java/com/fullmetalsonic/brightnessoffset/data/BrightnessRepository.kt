@@ -7,40 +7,51 @@ import com.fullmetalsonic.brightnessoffset.domain.AdjustmentScale
 import com.fullmetalsonic.brightnessoffset.domain.BrightnessSnapshot
 import com.fullmetalsonic.brightnessoffset.domain.FailureReason
 import com.fullmetalsonic.brightnessoffset.domain.OperationResult
+import com.fullmetalsonic.brightnessoffset.domain.PrivilegeStatus
+import com.fullmetalsonic.brightnessoffset.shizuku.PrivilegedSettingsContract
+import com.fullmetalsonic.brightnessoffset.shizuku.ShizukuPrivilegeClient
+import com.fullmetalsonic.brightnessoffset.system.BrightnessManagementService
 
 interface BrightnessRepositoryContract {
     fun snapshot(): BrightnessSnapshot
     fun applyAdjustment(value: Float): OperationResult
     fun restoreOriginal(): OperationResult
     fun setRestoreOnBoot(enabled: Boolean)
+    fun reapplyPendingIfReady(): Boolean
 }
 
 class BrightnessRepository(
     private val context: Context,
     private val managementPreferences: ManagementPreferences = ManagementPreferences(context),
+    private val privilegedSettings: PrivilegedSettingsContract = ShizukuPrivilegeClient.get(context),
 ) : BrightnessRepositoryContract {
     private val resolver = context.contentResolver
 
     override fun snapshot(): BrightnessSnapshot {
         return runCatching {
-            val current = readAdjustment()
             val lastApplied = managementPreferences.lastAppliedAdjustment
             val managed = managementPreferences.isManaged
+            val current = if (managed) {
+                lastApplied ?: AdjustmentScale.NEUTRAL
+            } else {
+                AdjustmentScale.NEUTRAL
+            }
 
             BrightnessSnapshot(
-                canWriteSettings = Settings.System.canWrite(context),
+                privilegeStatus = privilegedSettings.refreshStatus(),
                 isAutomaticMode = isAutomaticMode(),
                 currentAdjustment = current,
                 isManaged = managed,
                 originalAdjustment = managementPreferences.originalAdjustment,
                 lastAppliedAdjustment = lastApplied,
                 restoreOnBoot = managementPreferences.restoreOnBoot,
-                externalChangeDetected = managed && lastApplied != null &&
-                    !AdjustmentScale.isSame(current, lastApplied),
+                // Android exposes no public getter for a temporary auto-brightness
+                // adjustment. The live value is verified during device tests instead.
+                externalChangeDetected = false,
             )
         }.getOrElse { error ->
             BrightnessSnapshot(
-                canWriteSettings = Settings.System.canWrite(context),
+                privilegeStatus = privilegedSettings.refreshStatus(),
                 isAutomaticMode = false,
                 currentAdjustment = 0f,
                 isManaged = managementPreferences.isManaged,
@@ -54,12 +65,7 @@ class BrightnessRepository(
     }
 
     override fun applyAdjustment(value: Float): OperationResult {
-        if (!Settings.System.canWrite(context)) {
-            return OperationResult.Failure(
-                FailureReason.PERMISSION_REQUIRED,
-                context.getString(R.string.error_permission_apply),
-            )
-        }
+        privilegeFailure(privilegedSettings.refreshStatus())?.let { return it }
         if (!isAutomaticMode()) {
             return OperationResult.Failure(
                 FailureReason.AUTOMATIC_MODE_REQUIRED,
@@ -69,32 +75,29 @@ class BrightnessRepository(
 
         return runCatching {
             val normalized = AdjustmentScale.normalize(value)
-            val before = readAdjustment()
-            val wasManaged = managementPreferences.isManaged
-            val accepted = Settings.System.putFloat(resolver, ADJUSTMENT_KEY, normalized)
-
-            if (!accepted) {
-                return OperationResult.Failure(
-                    FailureReason.WRITE_REJECTED,
-                    context.getString(R.string.error_write_rejected),
+            if (AdjustmentScale.isSame(normalized, AdjustmentScale.NEUTRAL)) {
+                BrightnessManagementService.stop(context)
+                val cleared = privilegedSettings.clearTemporaryBrightness(DEFAULT_DISPLAY) &&
+                    privilegedSettings.clearTemporaryAdjustment()
+                if (!cleared) {
+                    return OperationResult.Failure(
+                        FailureReason.WRITE_REJECTED,
+                        context.getString(R.string.error_write_rejected),
+                    )
+                }
+                managementPreferences.clearSession()
+            } else {
+                managementPreferences.startOrUpdateSession(
+                    original = AdjustmentScale.NEUTRAL,
+                    applied = normalized,
+                    wasManaged = managementPreferences.isManaged,
                 )
+                runCatching { BrightnessManagementService.start(context, normalized) }
+                    .onFailure { managementPreferences.clearSession() }
+                    .getOrThrow()
             }
-
-            val verified = readAdjustment()
-            if (!AdjustmentScale.isSame(verified, normalized)) {
-                return OperationResult.Failure(
-                    FailureReason.VERIFICATION_FAILED,
-                    context.getString(R.string.error_apply_verification),
-                )
-            }
-
-            managementPreferences.startOrUpdateSession(
-                original = managementPreferences.originalAdjustment ?: before,
-                applied = verified,
-                wasManaged = wasManaged,
-            )
             OperationResult.Success(
-                verified,
+                normalized,
                 context.getString(R.string.success_applied),
             )
         }.getOrElse { error ->
@@ -106,36 +109,27 @@ class BrightnessRepository(
     }
 
     override fun restoreOriginal(): OperationResult {
-        if (!Settings.System.canWrite(context)) {
+        privilegeFailure(privilegedSettings.refreshStatus())?.let { return it }
+        if (!managementPreferences.isManaged) {
             return OperationResult.Failure(
-                FailureReason.PERMISSION_REQUIRED,
-                context.getString(R.string.error_permission_restore),
-            )
-        }
-        val original = managementPreferences.originalAdjustment
-            ?: return OperationResult.Failure(
                 FailureReason.NO_ORIGINAL_VALUE,
                 context.getString(R.string.error_no_original),
             )
+        }
 
         return runCatching {
-            val accepted = Settings.System.putFloat(resolver, ADJUSTMENT_KEY, original)
+            BrightnessManagementService.stop(context)
+            val accepted = privilegedSettings.clearTemporaryBrightness(DEFAULT_DISPLAY) &&
+                privilegedSettings.clearTemporaryAdjustment()
             if (!accepted) {
                 return OperationResult.Failure(
                     FailureReason.WRITE_REJECTED,
                     context.getString(R.string.error_restore_rejected),
                 )
             }
-            val verified = readAdjustment()
-            if (!AdjustmentScale.isSame(verified, original)) {
-                return OperationResult.Failure(
-                    FailureReason.VERIFICATION_FAILED,
-                    context.getString(R.string.error_restore_verification),
-                )
-            }
             managementPreferences.clearSession()
             OperationResult.Success(
-                verified,
+                AdjustmentScale.NEUTRAL,
                 context.getString(R.string.success_restored),
             )
         }.getOrElse { error ->
@@ -148,21 +142,61 @@ class BrightnessRepository(
 
     override fun setRestoreOnBoot(enabled: Boolean) {
         managementPreferences.restoreOnBoot = enabled
+        if (!enabled) managementPreferences.reapplyPending = false
+    }
+
+    fun markReapplyPending() {
+        if (managementPreferences.isManaged && managementPreferences.restoreOnBoot) {
+            managementPreferences.reapplyPending = true
+        }
+    }
+
+    override fun reapplyPendingIfReady(): Boolean {
+        if (!managementPreferences.isManaged) return false
+        val applied = resumeManagedIfReady()
+        if (applied) managementPreferences.reapplyPending = false
+        return applied
     }
 
     fun reapplyAfterBoot(): Boolean {
         if (!managementPreferences.isManaged || !managementPreferences.restoreOnBoot) return false
-        if (!Settings.System.canWrite(context) || !isAutomaticMode()) return false
+        return resumeManagedIfReady()
+    }
+
+    fun resumeManagedIfReady(): Boolean {
+        if (!managementPreferences.isManaged) return false
+        if (privilegedSettings.refreshStatus() !in READY_OR_CONNECTING || !isAutomaticMode()) {
+            return false
+        }
         val target = managementPreferences.lastAppliedAdjustment ?: return false
         return runCatching {
-            Settings.System.putFloat(resolver, ADJUSTMENT_KEY, target) &&
-                AdjustmentScale.isSame(readAdjustment(), target)
+            BrightnessManagementService.start(context, target)
+            true
         }.getOrDefault(false)
     }
 
-    private fun readAdjustment(): Float {
-        val value = Settings.System.getFloat(resolver, ADJUSTMENT_KEY, AdjustmentScale.NEUTRAL)
-        return if (value.isFinite()) value.coerceIn(-1f, 1f) else AdjustmentScale.NEUTRAL
+    private fun privilegeFailure(status: PrivilegeStatus): OperationResult.Failure? = when (status) {
+        PrivilegeStatus.NOT_INSTALLED -> OperationResult.Failure(
+            FailureReason.SHIZUKU_NOT_INSTALLED,
+            context.getString(R.string.error_shizuku_not_installed),
+        )
+        PrivilegeStatus.NOT_RUNNING -> OperationResult.Failure(
+            FailureReason.SHIZUKU_NOT_RUNNING,
+            context.getString(R.string.error_shizuku_not_running),
+        )
+        PrivilegeStatus.PERMISSION_REQUIRED,
+        PrivilegeStatus.PERMISSION_DENIED,
+        -> OperationResult.Failure(
+            FailureReason.PERMISSION_REQUIRED,
+            context.getString(R.string.error_shizuku_permission),
+        )
+        PrivilegeStatus.ERROR -> OperationResult.Failure(
+            FailureReason.PRIVILEGE_NOT_READY,
+            context.getString(R.string.error_shizuku_connection),
+        )
+        PrivilegeStatus.CONNECTING,
+        PrivilegeStatus.READY,
+        -> null
     }
 
     private fun isAutomaticMode(): Boolean =
@@ -173,8 +207,10 @@ class BrightnessRepository(
         ) == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC
 
     companion object {
-        // AOSP uses this hidden Settings.System key for the automatic-brightness curve adjustment.
-        // Using the literal avoids reflection and hidden-API invocation.
-        const val ADJUSTMENT_KEY = "screen_auto_brightness_adj"
+        private const val DEFAULT_DISPLAY = 0
+        private val READY_OR_CONNECTING = setOf(
+            PrivilegeStatus.READY,
+            PrivilegeStatus.CONNECTING,
+        )
     }
 }

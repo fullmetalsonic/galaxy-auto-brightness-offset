@@ -4,9 +4,11 @@ local.properties
 **/build/
 *.iml
 captures/
+build-evidence/
 .externalNativeBuild/
 .cxx/
 *.jks
 *.keystore
 .signing/
 dist/*.apk
+dist/*.idsig

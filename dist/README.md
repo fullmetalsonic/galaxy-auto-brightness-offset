@@ -1,28 +1,23 @@
 # 설치 산출물
 
-## 자동밝기보정-v1.1.0-debug.apk
+## AutoBrightnessOffset-v1.4.0-release.apk
 
-- 용도: 갤럭시 Z Fold8 실기기 기능·UI 시험
-- 상태: Android Debug 인증서로 서명되어 바로 설치 가능
-- 크기: 18,643,383 bytes
-- SHA-256: `CBA7064305F51C58054DC52FE5D2BB11F64201A4A6E1C73F22070DC513A1A992`
+- 용도: Galaxy Z Fold8 실기기 검증·GitHub Release 설치 파일
 - 패키지: `com.fullmetalsonic.brightnessoffset`
+- 버전: `1.4.0` (`versionCode=11`)
 - minSdk: 26
 - targetSdk: 36
+- 빌드: R8·리소스 축소 Release
+- 서명: Android Debug 인증서, APK Signature Scheme v2·v3
+- 크기: `3,466,647 bytes`
+- SHA-256: `7052CB8EC87544481D6CF9824F8B79D2243FBF901CB45246087814617D8931C9`
+- Debug 전용 ADB 시험 Receiver: 미포함
+- Fold8 설치 및 설치된 `base.apk` 해시 일치: PASS
 
-이 파일은 배포용 서명이 아닌 Debug 서명입니다. 폴드8 검증이 끝난 뒤 사용자 소유 키로 Release APK 또는 AAB를 서명해야 합니다.
+APK 자체는 `.gitignore`로 Git 이력에서 제외하고 GitHub v1.4.0 Release 첨부파일로 게시합니다.
 
-외부 기기에서는 [GitHub Release APK](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/download/v1.1.0/AutoBrightnessOffset-v1.1.0-debug.apk)를 내려받습니다. Release의 영문 파일명 APK는 이 파일과 바이트 및 SHA-256이 같습니다.
+이 파일은 최적화된 Release 빌드지만 개인 사이드로드 시험을 위해 Android Debug 인증서로 서명했습니다. Google Play 배포용 인증서가 아닙니다.
 
-상세 시험은 [폴드8 실기기 시험계획](../docs/DEVICE_TEST_PLAN.md)을 따릅니다.
-
-## Release 빌드
-
-R8·리소스 축소가 적용된 서명 전 Release APK는 다음 위치에 있습니다.
-
-`app/build/outputs/apk/release/app-release-unsigned.apk`
-
-- 크기: 1,140,512 bytes
-- SHA-256: `CE0E238D178C080B7302B4A5C1270649B5700BA07BF8B76B137821F06B53DE51`
-
-서명 전 파일이므로 기기 설치용으로 사용하지 않습니다.
+- [한국어 상세 설명서](../docs/USER_GUIDE_KO.md)
+- [English detailed guide](../docs/USER_GUIDE_EN.md)
+- [v1.4.0 Release notes](../docs/RELEASE_NOTES_v1.4.0.md)

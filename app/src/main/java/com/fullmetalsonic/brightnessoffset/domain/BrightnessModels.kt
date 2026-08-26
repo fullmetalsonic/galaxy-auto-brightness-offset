@@ -5,10 +5,11 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 
 object AdjustmentScale {
-    const val MIN = -0.5f
-    const val MAX = 0.5f
+    const val MIN = -1f
+    const val MAX = 1f
     const val NEUTRAL = 0f
     const val STEP = 0.05f
+    val PRESETS = listOf(-0.75f, -0.5f, -0.25f, 0f, 0.25f, 0.5f, 0.75f)
     private const val EQUALITY_TOLERANCE = 0.006f
 
     fun normalize(value: Float): Float {
@@ -33,7 +34,7 @@ object AdjustmentScale {
 }
 
 data class BrightnessSnapshot(
-    val canWriteSettings: Boolean,
+    val privilegeStatus: PrivilegeStatus,
     val isAutomaticMode: Boolean,
     val currentAdjustment: Float,
     val isManaged: Boolean,
@@ -57,10 +58,23 @@ sealed interface OperationResult {
 }
 
 enum class FailureReason {
+    SHIZUKU_NOT_INSTALLED,
+    SHIZUKU_NOT_RUNNING,
     PERMISSION_REQUIRED,
+    PRIVILEGE_NOT_READY,
     AUTOMATIC_MODE_REQUIRED,
     WRITE_REJECTED,
     VERIFICATION_FAILED,
     NO_ORIGINAL_VALUE,
     UNKNOWN,
+}
+
+enum class PrivilegeStatus {
+    NOT_INSTALLED,
+    NOT_RUNNING,
+    PERMISSION_REQUIRED,
+    PERMISSION_DENIED,
+    CONNECTING,
+    READY,
+    ERROR,
 }

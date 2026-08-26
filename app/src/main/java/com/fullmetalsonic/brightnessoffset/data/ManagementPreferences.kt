@@ -21,6 +21,12 @@ class ManagementPreferences(context: Context) {
             preferences.edit { putBoolean(KEY_RESTORE_ON_BOOT, value) }
         }
 
+    var reapplyPending: Boolean
+        get() = preferences.getBoolean(KEY_REAPPLY_PENDING, false)
+        set(value) {
+            preferences.edit { putBoolean(KEY_REAPPLY_PENDING, value) }
+        }
+
     fun startOrUpdateSession(original: Float, applied: Float, wasManaged: Boolean) {
         preferences.edit {
             putBoolean(KEY_IS_MANAGED, true)
@@ -37,6 +43,7 @@ class ManagementPreferences(context: Context) {
             remove(KEY_ORIGINAL)
             remove(KEY_LAST_APPLIED)
             putBoolean(KEY_RESTORE_ON_BOOT, false)
+            remove(KEY_REAPPLY_PENDING)
         }
     }
 
@@ -46,5 +53,6 @@ class ManagementPreferences(context: Context) {
         private const val KEY_ORIGINAL = "original_adjustment"
         private const val KEY_LAST_APPLIED = "last_applied_adjustment"
         private const val KEY_RESTORE_ON_BOOT = "restore_on_boot"
+        private const val KEY_REAPPLY_PENDING = "reapply_pending"
     }
 }

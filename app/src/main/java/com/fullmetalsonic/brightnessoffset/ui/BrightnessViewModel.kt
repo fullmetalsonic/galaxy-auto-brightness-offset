@@ -2,6 +2,8 @@ package com.fullmetalsonic.brightnessoffset.ui
 
 import android.app.Application
 import android.content.Context
+import android.content.Intent
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -11,17 +13,20 @@ import com.fullmetalsonic.brightnessoffset.diagnostics.DiagnosticReport
 import com.fullmetalsonic.brightnessoffset.domain.AdjustmentScale
 import com.fullmetalsonic.brightnessoffset.domain.BrightnessSnapshot
 import com.fullmetalsonic.brightnessoffset.domain.OperationResult
+import com.fullmetalsonic.brightnessoffset.domain.PrivilegeStatus
+import com.fullmetalsonic.brightnessoffset.shizuku.ShizukuPrivilegeClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 data class BrightnessUiState(
     val snapshot: BrightnessSnapshot = BrightnessSnapshot(
-        canWriteSettings = false,
+        privilegeStatus = PrivilegeStatus.CONNECTING,
         isAutomaticMode = false,
         currentAdjustment = 0f,
         isManaged = false,
@@ -39,6 +44,7 @@ data class BrightnessUiState(
 
 class BrightnessViewModel(
     private val repository: BrightnessRepositoryContract,
+    private val privilegeClient: ShizukuPrivilegeClient,
     private val appContext: Context,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(BrightnessUiState())
@@ -46,11 +52,17 @@ class BrightnessViewModel(
 
     init {
         refresh()
+        viewModelScope.launch {
+            privilegeClient.status.drop(1).collect { refresh() }
+        }
     }
 
     fun refresh() {
         viewModelScope.launch {
-            val snapshot = withContext(Dispatchers.IO) { repository.snapshot() }
+            val snapshot = withContext(Dispatchers.IO) {
+                repository.reapplyPendingIfReady()
+                repository.snapshot()
+            }
             _uiState.update { previous ->
                 previous.copy(
                     snapshot = snapshot,
@@ -89,11 +101,47 @@ class BrightnessViewModel(
         refresh()
     }
 
+    fun handlePrivilegeAction() {
+        when (_uiState.value.snapshot.privilegeStatus) {
+            PrivilegeStatus.NOT_INSTALLED -> openShizukuStore()
+            PrivilegeStatus.NOT_RUNNING,
+            PrivilegeStatus.PERMISSION_DENIED,
+            -> openShizukuManager()
+            PrivilegeStatus.PERMISSION_REQUIRED -> privilegeClient.requestPermission()
+            PrivilegeStatus.CONNECTING,
+            PrivilegeStatus.READY,
+            PrivilegeStatus.ERROR,
+            -> refresh()
+        }
+    }
+
     fun consumeMessage() {
         _uiState.update { it.copy(message = null, messageIsError = false) }
     }
 
     fun diagnosticText(): String = DiagnosticReport.create(appContext, _uiState.value.snapshot)
+
+    private fun openShizukuManager() {
+        val intent = appContext.packageManager
+            .getLaunchIntentForPackage(ShizukuPrivilegeClient.SHIZUKU_PACKAGE)
+            ?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        if (intent != null) appContext.startActivity(intent) else openShizukuStore()
+    }
+
+    private fun openShizukuStore() {
+        val market = Intent(
+            Intent.ACTION_VIEW,
+            "market://details?id=${ShizukuPrivilegeClient.SHIZUKU_PACKAGE}".toUri(),
+        ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        runCatching { appContext.startActivity(market) }.onFailure {
+            appContext.startActivity(
+                Intent(
+                    Intent.ACTION_VIEW,
+                    "https://shizuku.rikka.app/download/".toUri(),
+                ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+            )
+        }
+    }
 
     private suspend fun handleResult(result: OperationResult) {
         val snapshot = withContext(Dispatchers.IO) { repository.snapshot() }
@@ -122,8 +170,13 @@ class BrightnessViewModel(
             object : ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    val client = ShizukuPrivilegeClient.get(application.applicationContext)
                     return BrightnessViewModel(
-                        BrightnessRepository(application.applicationContext),
+                        BrightnessRepository(
+                            application.applicationContext,
+                            privilegedSettings = client,
+                        ),
+                        client,
                         application.applicationContext,
                     ) as T
                 }

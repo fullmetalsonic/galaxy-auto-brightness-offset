@@ -30,21 +30,21 @@ private val LightColors = lightColorScheme(
 )
 
 private val DarkColors = darkColorScheme(
-    primary = Amber300,
-    onPrimary = Navy950,
-    primaryContainer = Navy800,
-    onPrimaryContainer = Navy100,
-    secondary = Amber500,
+    primary = androidx.compose.ui.graphics.Color(0xFF087DFF),
+    onPrimary = Cloud50,
+    primaryContainer = androidx.compose.ui.graphics.Color(0xFF073B9D),
+    onPrimaryContainer = Cloud50,
+    secondary = androidx.compose.ui.graphics.Color(0xFF5DE7FF),
     onSecondary = Navy950,
-    secondaryContainer = ColorTokens.AmberDarkContainer,
-    onSecondaryContainer = Amber300,
+    secondaryContainer = androidx.compose.ui.graphics.Color(0xFF0B3048),
+    onSecondaryContainer = Cloud50,
     tertiary = ColorTokens.SuccessLight,
-    background = Navy950,
+    background = androidx.compose.ui.graphics.Color(0xFF030A13),
     onBackground = Cloud100,
-    surface = Navy900,
+    surface = androidx.compose.ui.graphics.Color(0xFF07111E),
     onSurface = Cloud100,
-    surfaceVariant = Navy800,
-    onSurfaceVariant = Navy100,
+    surfaceVariant = androidx.compose.ui.graphics.Color(0xFF101F2E),
+    onSurfaceVariant = androidx.compose.ui.graphics.Color(0xFF9FB0BF),
     error = ColorTokens.ErrorLight,
 )
 
