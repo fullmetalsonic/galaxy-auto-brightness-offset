@@ -2,16 +2,20 @@
 
 ## 현재 상태
 
-v1.4.0은 Galaxy Z Fold8에서 실제 밝기 보정이 동작합니다. 기존 `screen_auto_brightness_adj` 쓰기 방식은 폐기하고, 공식 Shizuku UserService를 통해 삼성 자동 밝기 곡선을 조회한 뒤 임시 패널 밝기를 적용하는 추적형 엔진으로 전환했습니다. 숫자·슬라이더·프리셋·주요 버튼의 OLED 발광 UI를 보강했고, 래스터 앱 아이콘은 둥근 런처 마스크에서 여유가 생기도록 중심 그래픽을 약 14% 축소했습니다.
+v1.4.1은 Galaxy Z Fold8에서 실제 밝기 보정과 Shizuku 연결 중단·복원 흐름이 동작합니다. 공식 Shizuku UserService로 삼성 자동 밝기 곡선을 조회해 임시 패널 밝기를 적용하고, Shizuku가 중지되면 센서 추적을 멈추고 `보정 일시 중지`로 전환합니다. 연결이 끊긴 상태의 복원 요청은 예약되며 Shizuku를 시작하고 앱을 열면 자동 완료됩니다.
 
-현재 Fold8는 사용자가 시험 중이던 `+50` 관리 상태로 되돌려 놓았습니다. v1.4.0 최종 APK가 설치되어 있고 재부팅 후 재적용도 다시 켰습니다.
+현재 Fold8는 사용자가 선택해 둔 `+50` 관리 상태입니다. Shizuku v13.6.0을 USB ADB로 시작했고, v1.4.1 최종 Release APK를 설치했습니다. Android 알림 권한을 허용했으며 재부팅 후 재적용도 다시 켰습니다. Shizuku와 자동 밝기 보정은 삼성 배터리 제한 예외 및 active standby bucket 상태입니다.
 
 - 자동 밝기 모드: `1`
 - `screen_auto_brightness_adj`: `0.00`
 - 임시 자동 보정: `NaN`
-- 임시 패널 밝기: 약 `0.5267` (`161 lux` 측정 시)
+- 임시 패널 밝기: 약 `0.5446` (삼성 기본 약 `0.3484`, `+50`)
 - 재부팅 후 재적용: `true`
 - 관리 서비스: RUNNING
+- Shizuku: v13.6.0, USB ADB 시작, `shizuku_server` PID `18637`
+- 시험 종료 상태: Wi-Fi ON, 무선 디버깅 OFF, USB 디버깅 ON
+- 알림 권한: 허용, 관리 알림 표시 확인
+- 배터리 제한: Shizuku·자동 밝기 보정 모두 device-idle whitelist, standby bucket `5(active)`
 
 ## 실제 동작 구조
 
@@ -37,7 +41,17 @@ v1.4.0은 Galaxy Z Fold8에서 실제 밝기 보정이 동작합니다. 기존 `
 - 실제 UI `+20` 선택·적용 → `원래 값 복원` — PASS
 - v1.4.0 커버 화면 `0 → +75 → +50` 실제 적용 — PASS
 - 약 `161 lux`, 삼성 기본 `0.3294`에서 `+75=0.6144`, `+50=0.5267` — PASS
+- USB ADB로 Shizuku 시작 후 무선 디버깅 OFF·Wi-Fi OFF: `193 lux`, 기본 `0.3373`, `+75=0.6208` — PASS
+- USB·무선 디버깅 ON 상태에서 Wi-Fi만 OFF: Shizuku PID 유지, 앱 재실행 후 `188 lux`, `+75=0.6208` — PASS
 - 복원: 서비스 STOPPED, 임시값 `NaN`, 시스템 자동 밝기 약 `0.3229` — PASS
+- Shizuku 중지: 센서 추적 중단, `보정 일시 중지`, 6초간 반복 `NOT_RUNNING` 오류 0건 — PASS
+- Shizuku 없는 상태에서 복원: `pending_restore=true`, `원래 값 복원 대기` — PASS
+- USB로 Shizuku 재시작 후 앱 열기: 예약 복원 완료, 서비스 STOPPED, 임시값 `NaN` — PASS
+- v1.4.1 `+75` 재적용: `239 lux`, 기본 `0.3451`, 실제 `0.6270` — PASS
+- Wi-Fi OFF 뒤 약 2~3분 후 보정 해제 재현: Shizuku PID는 유지됐지만 Samsung Freecess로 Binder 전달 중단 — 원인 확인
+- 두 앱 절전 예외 후 Wi-Fi OFF 화면 켠 백그라운드 0~180초: PID `18637`, 임시 밝기 `0.63016194` 유지 — PASS
+- 화면 잠금에서 임시값 `NaN`, 재점등 후 `0.63016194` 재적용 및 조도 변화에 따른 `0.61115956` 재계산, 180초 유지 — PASS
+- 최종 Release 재설치 뒤 로컬·기기 APK SHA-256 `91B570...2BBD0` 일치, `+50` 실제 `0.5445832` — PASS
 
 ## 코드 구조
 
@@ -53,7 +67,7 @@ v1.4.0은 Galaxy Z Fold8에서 실제 밝기 보정이 동작합니다. 기존 `
 ## 현재 검증 결과
 
 - BUILD Debug: PASS
-- JVM UNIT: PASS, 13/13
+- JVM UNIT: PASS, 17/17
 - Android Lint: PASS
 - BUILD Release unsigned + R8/resource shrink: PASS
 - Fold8 펼친 화면 기능 E2E: PASS
@@ -67,11 +81,13 @@ v1.4.0은 Galaxy Z Fold8에서 실제 밝기 보정이 동작합니다. 기존 `
 - APK 덮어 설치 후 관리 서비스 재개: PASS
 - 접기·펼치기 연속 전환: 현장 검증 필요
 - 재부팅 후 Shizuku 수동 재시작·앱 열기·마지막 값 재적용: PASS
-- Shizuku 자체 강제 중지: 현장 검증 필요
-- 영어 UI: PASS, 영어 관리 알림: 현장 검증 필요
+- Shizuku 중지 감지·일시 중지 UI·반복 오류 차단: PASS
+- Shizuku 중지 중 복원 예약·재연결 자동 복원: PASS
+- 두 앱 절전 예외 적용 후 USB ADB 시작·Wi-Fi 없는 야외 운용: PASS(백그라운드 3분 및 화면 잠금·재점등 범위)
+- Android 알림 권한 요청·한국어 관리 알림: PASS, 영어 관리 알림: 현장 검증 필요
 - 극저조도·창가·야외 고휘도: 현장 검증 필요
 
-미해결 CRITICAL: 0건. 현장 검증 전 HIGH 위험은 커버 화면 display 전환과 Shizuku 자체 중지 시 임시 밝기 복구입니다.
+미해결 CRITICAL/HIGH: 0건. 커버 화면 display 전환, 영어 관리 알림과 극저조도·야외 고휘도는 추가 현장 검증 대상입니다.
 
 ## 적용된 디자인 기준
 
@@ -86,10 +102,9 @@ v1.4.0은 Galaxy Z Fold8에서 실제 밝기 보정이 동작합니다. 기존 `
 ## 다음 작업
 
 1. Fold8를 접고 펼치며 커버·메인 물리 패널의 logical display ID와 실제 밝기를 기록합니다.
-2. 관리 중 Shizuku 앱 자체 중지에서 임시값이 남는지 시험하고 안전 복구를 보강합니다.
-3. 한국어·영어 알림 권한과 `보정 해제` 액션을 시험합니다.
-4. 어두운 방, 사무실, 창가, 야외에서 보정 체감과 고휘도·발열 제한을 확인합니다.
-5. v1.4.0 UI를 펼친 메인 화면에서 추가 시각 QA하고 영어 관리 알림을 확인합니다.
+2. 영어 관리 알림과 알림의 `Clear offset` 액션을 실기기에서 확인합니다.
+3. 어두운 방, 사무실, 창가, 야외에서 보정 체감과 고휘도·발열 제한을 확인합니다.
+4. 더 긴 야외 운용에서 Samsung 절전 예외가 유지되는지 장시간 관찰합니다.
 
 ## 빌드 주의사항
 
@@ -105,20 +120,20 @@ v1.4.0은 Galaxy Z Fold8에서 실제 밝기 보정이 동작합니다. 기존 `
 
 - GitHub: `https://github.com/fullmetalsonic/galaxy-auto-brightness-offset`
 - 가시성: Public
-- 현재 Release: [v1.4.0](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/tag/v1.4.0)
-- 기능·문서 태그 커밋: `e68092347e2fc3d4f577913492634efc26d65cc2`
-- GitHub Actions: [32923140342](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/actions/runs/32923140342), PASS
-- 공개 저장소·한영 설명서·README 이미지·Release: 익명 HTTP 200 확인
-- 공개 APK 재다운로드 바이트·SHA-256: 로컬 원본과 일치
+- 현재 Release: v1.4.0 공개, v1.4.1 공개 작업 중
+- v1.4.1 기능·문서 커밋: 공개 후 기록 예정
+- GitHub Actions: v1.4.1 푸시 후 기록 예정
+- 공개 저장소·한영 설명서·README 이미지·Release: v1.4.1 게시 후 확인 예정
+- 공개 APK 재다운로드 바이트·SHA-256: v1.4.1 게시 후 확인 예정
 - 상세 설명서: `docs/USER_GUIDE_KO.md`, `docs/USER_GUIDE_EN.md`
 - 회사 메일: 발송하지 않음
 
 ## 로컬 설치 산출물
 
-- 파일: `dist/AutoBrightnessOffset-v1.4.0-release.apk`
-- 버전: `1.4.0` (`versionCode=11`, `targetSdk=36`)
-- 크기: `3,466,647 bytes`
-- SHA-256: `7052CB8EC87544481D6CF9824F8B79D2243FBF901CB45246087814617D8931C9`
+- 파일: `dist/AutoBrightnessOffset-v1.4.1-release.apk`
+- 버전: `1.4.1` (`versionCode=12`, `targetSdk=36`)
+- 크기: `3,474,839 bytes`
+- SHA-256: `91B5700052DECF3BCCBC67B17684CF90DF4B7C2955FCBD9A1AD1799DA472BBD0`
 - Fold8 설치: PASS
 - 설치된 `base.apk`와 로컬 설치파일 SHA-256 일치: PASS
 - Release 빌드: R8 최적화 후 Android Debug 인증서 v2·v3 서명, Debug 전용 ADB 시험 Receiver 미포함 확인

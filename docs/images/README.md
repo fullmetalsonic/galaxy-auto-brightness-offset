@@ -4,6 +4,12 @@ All images in this folder are documentation assets approved for the public repos
 
 | File | Source and use | Privacy treatment |
 |---|---|---|
+| `app-home-ko-v1.4.1.png` | Real Galaxy Z Fold8, installed v1.4.1 Release, Korean active screen | Cropped system status and navigation bars |
+| `app-home-en-v1.4.1.png` | Real Galaxy Z Fold8, installed v1.4.1 Release, app-only `en-US` locale | Cropped system status and navigation bars |
+| `app-select-offset-ko-v1.4.1.png` | Real Galaxy Z Fold8, installed v1.4.1 Release, offset selection | Cropped system status and navigation bars |
+| `app-settings-ko-v1.4.1.png` | Real Galaxy Z Fold8, installed v1.4.1 Release, Korean recovery/actions | Cropped to the app-only area |
+| `app-settings-en-v1.4.1.png` | Real Galaxy Z Fold8, installed v1.4.1 Release, English recovery/actions | Cropped to the app-only area |
+| `app-restore-pending-ko-v1.4.1.png` | Real Galaxy Z Fold8, v1.4.1 verification build, Shizuku-disconnected restore queue | Cropped system status and navigation bars |
 | `app-home-ko-v1.4.0.png` | Real Galaxy Z Fold8, Korean main screen | Cropped system status and navigation bars |
 | `app-select-offset-ko-v1.4.0.png` | Real Galaxy Z Fold8, Korean offset selection | Cropped system status and navigation bars |
 | `app-settings-ko-v1.4.0.png` | Real Galaxy Z Fold8, Korean recovery/actions | Cropped to the app-only area |

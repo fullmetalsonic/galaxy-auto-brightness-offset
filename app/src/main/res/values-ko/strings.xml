@@ -19,10 +19,13 @@
     <string name="neutral">보정 없음</string>
     <string name="baseline">기본</string>
     <string name="system_value">현재 적용값 %1$s</string>
+    <string name="saved_offset_value">마지막 보정값 %1$s</string>
     <string name="read_setting_failed">설정 읽기 실패: %1$s</string>
     <string name="apply_selected_offset">선택한 보정 적용</string>
     <string name="manage_current_offset">현재 보정 관리 시작</string>
     <string name="current_offset_active">현재 %1$s 적용 중</string>
+    <string name="current_offset_paused">%1$s 보정 일시 중지 · Shizuku 시작 필요</string>
+    <string name="offset_paused">보정 일시 중지</string>
     <string name="restore_original_value_short">원래 값 복원</string>
     <string name="restore_original_description">이 앱의 임시 보정을 해제하고 시스템 자동 밝기로 되돌립니다.</string>
     <string name="offset_explanation">숫자는 보정 강도이며 밝기 퍼센트가 아닙니다. 처음에는 +10부터 시험하는 것을 권장합니다.</string>
@@ -42,6 +45,7 @@
     <string name="error_no_original">저장된 원래 값이 없습니다.</string>
     <string name="error_restore_rejected">기기가 원래 값 복원을 거부했습니다.</string>
     <string name="success_restored">앱의 보정을 해제하고 시스템 자동 밝기로 복원했습니다.</string>
+    <string name="success_restore_queued">복원을 예약했습니다. Shizuku를 시작한 뒤 이 앱을 열면 자동으로 완료합니다.</string>
     <string name="error_unknown_restore">복원 중 알 수 없는 오류가 발생했습니다.</string>
     <string name="error_shizuku_not_installed">Shizuku를 먼저 설치해 주세요.</string>
     <string name="error_shizuku_not_running">Shizuku를 먼저 시작해 주세요.</string>
@@ -59,6 +63,7 @@
     <string name="diag_original">원래 값</string>
     <string name="diag_last_applied">마지막 적용값</string>
     <string name="diag_reapply_after_reboot">재부팅 후 재적용</string>
+    <string name="diag_pending_restore">복원 대기</string>
     <string name="diag_external_change">외부 변경 감지</string>
     <string name="diag_read_error">읽기 오류</string>
     <string name="yes">예</string>
@@ -66,5 +71,13 @@
     <string name="management_notification_channel">자동 밝기 보정 관리</string>
     <string name="management_notification_title">자동 밝기 보정 작동 중</string>
     <string name="management_notification_text">주변 밝기에 맞춰 %1$s 보정을 적용합니다.</string>
+    <string name="management_notification_reconnecting_title">자동 밝기 보정 재연결 중</string>
+    <string name="management_notification_reconnecting_text">%1$s 보정을 다시 시작할 준비를 하고 있습니다.</string>
+    <string name="management_notification_paused_title">자동 밝기 보정 일시 중지</string>
+    <string name="management_notification_paused_text">Shizuku를 시작한 뒤 이 앱을 열면 %1$s 보정을 다시 적용합니다.</string>
+    <string name="management_notification_restore_pending_title">원래 값 복원 대기</string>
+    <string name="management_notification_restore_pending_text">Shizuku를 시작한 뒤 이 앱을 열면 임시 보정을 해제합니다.</string>
     <string name="management_notification_stop">보정 해제</string>
+    <string name="restore_pending_short">원래 값 복원 대기</string>
+    <string name="restore_pending_description">Shizuku를 시작한 뒤 이 앱을 열면 임시 보정을 자동으로 해제합니다.</string>
 </resources>

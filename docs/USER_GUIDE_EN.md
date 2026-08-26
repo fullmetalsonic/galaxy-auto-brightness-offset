@@ -1,6 +1,6 @@
-# Auto Brightness Offset v1.4.0 — Detailed Guide
+# Auto Brightness Offset v1.4.1 — Detailed Guide
 
-[Back to README](../README.md) · [한국어 설명서](USER_GUIDE_KO.md) · [Download v1.4.0](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/tag/v1.4.0)
+[Back to README](../README.md) · [한국어 설명서](USER_GUIDE_KO.md) · [Download v1.4.1](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/tag/v1.4.1)
 
 This guide covers every setup and operating step for a first-time Samsung Galaxy user. Exact labels can vary slightly by One UI and Shizuku version.
 
@@ -24,7 +24,7 @@ You need:
 - Internet access only to download Shizuku and the APK
 - Samsung **Adaptive brightness** enabled
 - The official Shizuku app
-- The Auto Brightness Offset v1.4.0 APK
+- The Auto Brightness Offset v1.4.1 APK
 
 Android 11 and later can start Shizuku directly on the phone through wireless debugging. Android 10 and earlier require the computer ADB method.
 
@@ -76,34 +76,61 @@ The Shizuku screenshot above follows the phone's system language. The button pos
 
 Official procedure: [Shizuku setup guide](https://shizuku.rikka.app/guide/setup/)
 
-## Stage 5 — Android 10 or earlier / computer ADB method
+## Stage 5 — Start Shizuku over USB ADB for Wi-Fi-free use
 
-Skip this stage on Android 11 and later.
+This method also applies to Android 11 and later. Start Shizuku from a computer before leaving home, then use the offset outdoors without a Wi-Fi connection. The procedure below was physically verified with Shizuku v13.6.0 on a Galaxy Z Fold8.
 
 1. Download the official [Android SDK Platform Tools](https://developer.android.com/tools/releases/platform-tools) on the computer.
 2. Enable **USB debugging** in Developer options.
 3. Connect the phone by USB and approve the phone's debugging prompt.
 4. Run `adb devices` and confirm that the phone state is `device`.
-5. Run the official Shizuku start command:
+5. First run the current ADB command shown by Shizuku or its official guide. The commonly documented command is:
 
 ```text
 adb shell sh /sdcard/Android/data/moe.shizuku.privileged.api/start.sh
 ```
 
-6. Confirm the running state in the Shizuku app.
+6. If a current Shizuku build does not expose that file, use PowerShell to resolve and run its installed starter:
+
+```powershell
+$line = adb shell dumpsys package moe.shizuku.privileged.api |
+    Select-String "legacyNativeLibraryDir=" |
+    Select-Object -First 1
+$libDir = ($line.ToString().Trim() -split "=", 2)[1]
+adb shell "$libDir/arm64/libshizuku.so"
+```
+
+7. Verify that `adb shell pidof shizuku_server` prints a numeric PID.
+8. Confirm the running state in the Shizuku app.
+9. Open **Settings → Apps → Shizuku → Battery** and select **Unrestricted**.
+10. Do the same for **Auto Brightness Offset → Battery → Unrestricted**.
+11. Open **Settings → Battery → Background usage limits → Never auto sleeping apps** and add both Shizuku and Auto Brightness Offset. Exact One UI labels may vary.
+12. You may unplug USB and turn both Wi-Fi and **Wireless debugging** off. The tested Fold8 kept **USB debugging** enabled.
+
+On the tested Fold8 with One UI 9, both apps were exempted from battery restrictions before a Wi-Fi-off three-minute screen-on background run, screen lock, wake, and automatic reapply test passed. This is a measured device result, not a guarantee of permanent operation on every One UI release.
+
+Operational limits:
+
+- USB is required only to start Shizuku; it does not stay connected during normal use.
+- Wi-Fi and Wireless debugging do not need to stay enabled after a USB start.
+- Both apps must be exempted from Samsung battery restrictions so background management does not freeze Shizuku or this app.
+- If Shizuku's server is alive but the app shows **Offset paused**, keep Wi-Fi off and use **open Shizuku → open Auto Brightness Offset** to refresh the connection.
+- A phone reboot or terminated Shizuku server requires another start.
+- Restarting away from home requires a computer, a USB ADB bridge such as a Raspberry Pi, or a root-based method.
+- Shizuku's command can change by version; prefer the current command shown by the official app when available.
 
 ## Stage 6 — Install Auto Brightness Offset
 
-1. Open the GitHub [v1.4.0 Release](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/tag/v1.4.0).
-2. Download `AutoBrightnessOffset-v1.4.0-release.apk`.
+1. Open the GitHub [v1.4.1 Release](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/tag/v1.4.1).
+2. Download `AutoBrightnessOffset-v1.4.1-release.apk`.
 3. Open the download from the browser notification or **My Files → Downloads**.
 4. If Android asks, temporarily allow **Install unknown apps** for that browser or My Files.
 5. You may turn that permission off again after installation.
 
 File verification:
 
-- Size: `3,466,647 bytes`
-- SHA-256: `7052CB8EC87544481D6CF9824F8B79D2243FBF901CB45246087814617D8931C9`
+- Size: `3,474,839 bytes`
+- SHA-256: `91B5700052DECF3BCCBC67B17684CF90DF4B7C2955FCBD9A1AD1799DA472BBD0`
 - Build/signature: R8-optimized Release, Android Debug certificate, APK Signature Scheme v2 and v3
 
 This is a debug-signed personal-test package, not a Google Play production-signed build.
@@ -117,7 +144,7 @@ This is a debug-signed personal-test package, not a Google Play production-signe
 5. Verify that **Shizuku access** and **Adaptive brightness** both show a ready state.
 6. Allow notifications when prompted. They show active management and provide a **Clear offset** action.
 
-![Ready-to-apply English interface](images/app-home-en-v1.4.0.png)
+![Ready-to-apply English interface](images/app-home-en-v1.4.1.png)
 
 If you denied access accidentally, open Shizuku's authorized-app list and allow Auto Brightness Offset there.
 
@@ -171,7 +198,9 @@ Use any one of these methods:
 
 Restoring clears the temporary display override and stops the management service, returning direct control to Samsung adaptive brightness.
 
-![English settings and recovery actions](images/app-settings-en-v1.4.0.png)
+If Shizuku is stopped when you request a restore, the app enters **Restore pending**. Start Shizuku and open the app once; it then clears the temporary override automatically.
+
+![English settings and recovery actions](images/app-settings-en-v1.4.1.png)
 
 ## Stage 12 — Use Diagnostics
 
@@ -183,6 +212,7 @@ Tap **Diagnostics** to copy:
 - Current and last offset
 - Management state
 - Reapply-after-reboot setting
+- Pending-restore state
 
 The report is not designed to contain accounts, passwords, photos, or screen content. Review copied text yourself before sharing it in an issue.
 
@@ -191,7 +221,9 @@ The report is not designed to contain accounts, passwords, photos, or screen con
 | Symptom | Check | Action |
 |---|---|---|
 | Install Shizuku first | Shizuku is missing | Install it from the official download page |
-| Start Shizuku first | Service is stopped | Enable wireless debugging and start Shizuku |
+| Start Shizuku first | Service is stopped | Start Shizuku through wireless debugging or USB ADB, then open the app |
+| Offset paused | Shizuku stopped during use | Start Shizuku and open the app once to reapply the saved offset |
+| Restore pending | Restore was requested while disconnected | Start Shizuku and open the app to complete the restore |
 | Shizuku permission required | Access was denied | Allow the app in Shizuku's authorized-app list |
 | Adaptive brightness required | Manual brightness is active | Enable Samsung Adaptive brightness |
 | Difference is too small | Small value or changing ambient light | Compare `+25` and `+50` in the same location |
@@ -199,15 +231,19 @@ The report is not designed to contain accounts, passwords, photos, or screen con
 | No management notification | Notification permission blocked | Allow notifications in Android app info |
 | Not active after reboot | Shizuku stopped at boot | Start Shizuku, then reopen the app |
 | Wireless start fails | Pairing or network issue | Toggle wireless debugging and pair again |
+| Offset stops two or three minutes after Wi-Fi is disabled | Samsung background management froze Shizuku Binder delivery or the app | Set both apps to Unrestricted and add both to Never auto sleeping apps |
+| Shizuku is running but the app says Offset paused | The app has not received Shizuku's Binder again | Without enabling Wi-Fi, open Shizuku and then Auto Brightness Offset |
+| No outdoor Wi-Fi | Shizuku was not started over USB first | Start it over USB, exempt both apps from battery restrictions, and avoid rebooting |
 | Failure after a One UI update | Private API may have changed | Copy Diagnostics and report an issue |
 
 ## Stage 14 — Uninstall and clean up
 
 1. Tap **Restore original** first.
-2. Confirm that the active-management notification disappears.
-3. Uninstall Auto Brightness Offset from Android app info.
-4. Stop or uninstall Shizuku only if no other apps need it.
-5. Disable wireless and USB debugging if you no longer use Developer options.
+2. If **Restore pending** appears, start Shizuku and reopen the app to complete the restore.
+3. Confirm that the active-management notification disappears.
+4. Uninstall Auto Brightness Offset from Android app info.
+5. Stop or uninstall Shizuku only if no other apps need it.
+6. Disable wireless and USB debugging if you no longer use Developer options.
 
 ## Stage 15 — Privacy, safety, and limitations
 
@@ -216,6 +252,7 @@ The report is not designed to contain accounts, passwords, photos, or screen con
 - It stores only management state, the last offset, and the reapply-after-reboot choice.
 - It does not save or transmit ambient-light history or screen content.
 - Shizuku's own behavior and networking follow Shizuku's policies.
+- Exempting both apps from battery restrictions allows longer background operation and may use more battery than the default policy.
 - Outdoor boost, thermal dimming, power saving, HDR, and app-specific limits remain higher priority.
 - Samsung-specific commands and private temporary APIs may fail on other manufacturers or after a future One UI change.
 

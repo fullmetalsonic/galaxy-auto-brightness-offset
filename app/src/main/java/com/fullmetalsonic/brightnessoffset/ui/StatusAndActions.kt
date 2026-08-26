@@ -45,6 +45,12 @@ internal fun ReadinessSection(
     modifier: Modifier = Modifier,
 ) {
     val ready = snapshot.privilegeStatus == PrivilegeStatus.READY && snapshot.isAutomaticMode
+    val paused = snapshot.isManaged && snapshot.privilegeStatus != PrivilegeStatus.READY
+    val statusColor = when {
+        paused || snapshot.pendingRestore -> PremiumAmber
+        ready -> PremiumCyan
+        else -> MaterialTheme.colorScheme.error
+    }
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -65,16 +71,21 @@ internal fun ReadinessSection(
             Icon(
                 imageVector = Icons.Rounded.Security,
                 contentDescription = null,
-                tint = if (ready) PremiumCyan else MaterialTheme.colorScheme.error,
+                tint = statusColor,
                 modifier = Modifier.size(28.dp),
             )
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text(
                     text = stringResource(
-                        if (ready) R.string.ready_to_apply else R.string.permission_required,
+                        when {
+                            snapshot.pendingRestore -> R.string.restore_pending_short
+                            paused -> R.string.offset_paused
+                            ready -> R.string.ready_to_apply
+                            else -> R.string.permission_required
+                        },
                     ),
-                    color = if (ready) PremiumCyan else MaterialTheme.colorScheme.error,
+                    color = statusColor,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                 )
@@ -182,14 +193,21 @@ internal fun SettingsActions(
         HorizontalDivider(color = PremiumHairline)
         ActionRow(
             icon = Icons.Rounded.RestartAlt,
-            title = stringResource(R.string.restore_original_value_short),
-            description = if (snapshot.originalAdjustment != null) {
-                stringResource(R.string.restore_original_description)
-            } else {
-                stringResource(R.string.error_no_original)
+            title = stringResource(
+                if (snapshot.pendingRestore) {
+                    R.string.restore_pending_short
+                } else {
+                    R.string.restore_original_value_short
+                },
+            ),
+            description = when {
+                snapshot.pendingRestore -> stringResource(R.string.restore_pending_description)
+                snapshot.originalAdjustment != null ->
+                    stringResource(R.string.restore_original_description)
+                else -> stringResource(R.string.error_no_original)
             },
-            enabled = snapshot.originalAdjustment != null,
-            onClick = onRestore,
+            enabled = snapshot.originalAdjustment != null || snapshot.pendingRestore,
+            onClick = onRestore.takeUnless { snapshot.pendingRestore },
         )
         HorizontalDivider(color = PremiumHairline)
         ActionRow(

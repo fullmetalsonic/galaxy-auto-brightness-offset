@@ -52,6 +52,7 @@ import com.fullmetalsonic.brightnessoffset.domain.PrivilegeStatus
 
 internal val PremiumBlue = Color(0xFF087DFF)
 internal val PremiumCyan = Color(0xFF5DE7FF)
+internal val PremiumAmber = Color(0xFFFFC857)
 internal val PremiumHairline = Color(0xFF27384A)
 
 @Composable
@@ -158,7 +159,13 @@ private fun AdjustmentControl(
                 )
                 Text(
                     text = stringResource(
-                        R.string.system_value,
+                        if (state.snapshot.isManaged &&
+                            state.snapshot.privilegeStatus != PrivilegeStatus.READY
+                        ) {
+                            R.string.saved_offset_value
+                        } else {
+                            R.string.system_value
+                        },
                         AdjustmentScale.rawValue(state.snapshot.currentAdjustment),
                     ),
                     style = MaterialTheme.typography.bodyMedium,
@@ -213,7 +220,13 @@ private fun AdjustmentControl(
                 enabled = ready && (changed || !state.snapshot.isManaged) && !state.isApplying,
                 isLoading = state.isApplying,
                 text = when {
+                    state.snapshot.pendingRestore -> stringResource(R.string.restore_pending_short)
                     changed -> stringResource(R.string.apply_selected_offset)
+                    state.snapshot.isManaged &&
+                        state.snapshot.privilegeStatus != PrivilegeStatus.READY -> stringResource(
+                            R.string.current_offset_paused,
+                            AdjustmentScale.signedPoints(state.snapshot.currentAdjustment),
+                        )
                     state.snapshot.isManaged -> stringResource(
                         R.string.current_offset_active,
                         AdjustmentScale.signedPoints(state.snapshot.currentAdjustment),

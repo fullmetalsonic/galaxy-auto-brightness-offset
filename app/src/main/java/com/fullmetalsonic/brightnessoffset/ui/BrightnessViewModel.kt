@@ -33,6 +33,7 @@ data class BrightnessUiState(
         originalAdjustment = null,
         lastAppliedAdjustment = null,
         restoreOnBoot = false,
+        pendingRestore = false,
         externalChangeDetected = false,
     ),
     val draftAdjustment: Float = 0f,

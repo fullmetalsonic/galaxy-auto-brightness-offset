@@ -2,11 +2,11 @@
 
 [![Android CI](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/actions/workflows/android.yml/badge.svg)](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/actions/workflows/android.yml)
 
-[한국어](#한국어) · [English](#english) · [한국어 상세 설명서](docs/USER_GUIDE_KO.md) · [English guide](docs/USER_GUIDE_EN.md) · [Download v1.4.0](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/tag/v1.4.0)
+[한국어](#한국어) · [English](#english) · [한국어 상세 설명서](docs/USER_GUIDE_KO.md) · [English guide](docs/USER_GUIDE_EN.md) · [Download v1.4.1](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/tag/v1.4.1)
 
 <p align="center">
-  <img src="docs/images/app-home-ko-v1.4.0.png" width="360" alt="Auto Brightness Offset Korean interface on Galaxy Z Fold8">
-  <img src="docs/images/app-home-en-v1.4.0.png" width="360" alt="Auto Brightness Offset English interface on Galaxy Z Fold8">
+  <img src="docs/images/app-home-ko-v1.4.1.png" width="360" alt="Auto Brightness Offset Korean interface on Galaxy Z Fold8">
+  <img src="docs/images/app-home-en-v1.4.1.png" width="360" alt="Auto Brightness Offset English interface on Galaxy Z Fold8">
 </p>
 
 > 실제 Galaxy Z Fold8 화면입니다. 공개 이미지에서는 통신사·시간·알림·배터리·내비게이션 표시가 있는 시스템 영역만 잘랐습니다.<br>
@@ -28,9 +28,9 @@
 
 ### 다운로드
 
-- APK: [AutoBrightnessOffset-v1.4.0-release.apk](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/download/v1.4.0/AutoBrightnessOffset-v1.4.0-release.apk)
-- 크기: `3,466,647 bytes`
-- SHA-256: `7052CB8EC87544481D6CF9824F8B79D2243FBF901CB45246087814617D8931C9`
+- APK: [AutoBrightnessOffset-v1.4.1-release.apk](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/download/v1.4.1/AutoBrightnessOffset-v1.4.1-release.apk)
+- 크기: `3,474,839 bytes`
+- SHA-256: `91B5700052DECF3BCCBC67B17684CF90DF4B7C2955FCBD9A1AD1799DA472BBD0`
 - 빌드·서명: R8 최적화 Release, Android Debug 인증서, APK Signature Scheme v2·v3
 
 이 APK는 개인 테스트·사이드로드용 디버그 서명 빌드입니다. Google Play 배포용 서명 빌드는 아닙니다.
@@ -51,12 +51,22 @@
 - 프리셋 `-75`, `-50`, `-25`, `0`, `+25`, `+50`, `+75`
 - 주변 조도 변화에 따른 자동 재계산
 - 화면 OFF 시 임시 밝기 해제, 화면 ON 시 재적용
+- Shizuku 중지 시 조도 추적 일시 중지와 명확한 상태 표시
+- Shizuku 재시작 후 앱을 열면 저장한 보정값 자동 재적용
+- 연결이 끊긴 상태의 복원 요청을 예약하고 다음 연결 때 자동 완료
 - 앱에서 `원래 값 복원` 및 알림에서 `보정 해제`
+- Android 13 이상에서 첫 실행 시 관리 알림 권한 한 번 요청
 - 시스템 언어에 따른 한국어·영어 UI
 - 진단 정보 복사와 선택형 재부팅 후 재적용
 - 인터넷·계정·광고·분석·개인정보 수집 없음
 
 숫자는 화면 밝기 퍼센트가 아니라 **자동 밝기 곡선의 보정 강도**입니다. `0`을 적용하거나 `원래 값 복원`을 누르면 앱의 임시 보정이 해제되고 시스템 자동 밝기로 돌아갑니다.
+
+### Wi-Fi 없는 야외 사용
+
+집에서 USB ADB로 Shizuku를 시작한 뒤에는 USB 케이블을 빼고 Wi-Fi와 무선 디버깅을 꺼도 Fold8에서 보정이 동작했습니다. 먼저 Shizuku와 이 앱을 모두 `배터리 → 제한 없음` 및 삼성의 `절전 상태로 전환하지 않을 앱`에 추가해야 합니다. 절전 예외 적용 뒤 Wi-Fi OFF 상태에서 화면을 켠 백그라운드 3분과 화면 잠금·재점등 시험을 통과했습니다.
+
+즉, **야외에서 Wi-Fi에 계속 연결할 필요는 없습니다.** 연결 표시가 풀리면 Wi-Fi를 켤 필요 없이 `Shizuku 앱 열기 → 자동 밝기 보정 앱 열기` 순서로 Binder를 다시 받을 수 있습니다. 다만 재부팅하거나 Shizuku 서버가 실제 종료되면 PC, USB ADB 브리지 또는 루트 방식 없이 야외에서 다시 시작할 수 없습니다. 자세한 순서는 [한국어 상세 설명서의 USB 시작 절차](docs/USER_GUIDE_KO.md#5단계-usb-adb로-shizuku-시작하고-wi-fi-없이-사용)를 참고하십시오.
 
 ### 작동 방식
 
@@ -70,7 +80,7 @@
 
 | 시험 | 결과 |
 |---|---|
-| JVM 단위시험 | PASS, 13/13 |
+| JVM 단위시험 | PASS, 17/17 |
 | Android Lint | PASS |
 | Debug APK 빌드 | PASS |
 | R8·리소스 축소 Release 빌드 | PASS, unsigned |
@@ -79,6 +89,10 @@
 | `+75` 적용 | PASS, 기본 `0.3294` → 실제 `0.6144` |
 | `+50` 복귀 | PASS, 실제 `0.5267` |
 | 아이콘 축소판 설치·표시 | PASS |
+| Shizuku 중지 시 일시 중지·반복 오류 차단 | PASS |
+| 연결 끊김 중 복원 예약 → Shizuku 재시작·앱 열기 → 자동 복원 | PASS |
+| USB 시작 후 Wi-Fi·무선 디버깅 OFF 운용 | PASS |
+| Android 알림 권한 요청과 관리 알림 표시 | PASS |
 | 설치 APK와 기기 `base.apk` 해시 | PASS, 일치 |
 
 삼성의 야외 고휘도, 발열 감광, 절전 모드, HDR 및 앱별 제한은 계속 우선합니다. One UI 업데이트나 다른 제조사에서는 삼성 전용 명령/API가 달라 동작하지 않을 수 있습니다.
@@ -99,9 +113,9 @@ The app does not change a screen protector's light transmission or viewing angle
 
 ### Download
 
-- APK: [AutoBrightnessOffset-v1.4.0-release.apk](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/download/v1.4.0/AutoBrightnessOffset-v1.4.0-release.apk)
-- Size: `3,466,647 bytes`
-- SHA-256: `7052CB8EC87544481D6CF9824F8B79D2243FBF901CB45246087814617D8931C9`
+- APK: [AutoBrightnessOffset-v1.4.1-release.apk](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/download/v1.4.1/AutoBrightnessOffset-v1.4.1-release.apk)
+- Size: `3,474,839 bytes`
+- SHA-256: `91B5700052DECF3BCCBC67B17684CF90DF4B7C2955FCBD9A1AD1799DA472BBD0`
 - Build/signature: R8-optimized Release, Android Debug certificate, APK Signature Scheme v2 and v3
 
 This is a debug-signed sideload build for personal testing, not a Google Play production-signed package.
@@ -122,12 +136,22 @@ See the illustrated [English setup and user guide](docs/USER_GUIDE_EN.md) for ev
 - Quick presets: `-75`, `-50`, `-25`, `0`, `+25`, `+50`, `+75`
 - Automatic recalculation when ambient light changes
 - Temporary override cleared while the screen is off and reapplied when it turns on
+- Clear paused state when Shizuku stops, without repeated failed sensor queries
+- Automatic saved-offset resume after Shizuku restarts and the app is opened
+- Queued restore while disconnected, completed on the next Shizuku connection
 - Restore from the app or clear the offset from the management notification
+- One-time Android notification-permission request on Android 13 and later
 - Korean UI on Korean systems and English UI on other locales
 - Copyable diagnostics and optional reapply-after-reboot workflow
 - No Internet permission, account, ads, analytics, or personal-data collection
 
 The number is a **curve-offset strength**, not a brightness percentage. Applying `0` or choosing **Restore original** clears the app's temporary override and returns control to system adaptive brightness.
+
+### Outdoor use without Wi-Fi
+
+On the tested Fold8, Shizuku and the offset remained active after starting Shizuku through USB ADB, exempting both Shizuku and this app from battery restrictions, unplugging USB, and turning both Wi-Fi and Wireless debugging off. The phone passed a three-minute screen-on background run plus a screen-lock and wake reapply test.
+
+You do **not** need a continuous Wi-Fi connection outdoors. If access drops while the server is still alive, open Shizuku and then Auto Brightness Offset to refresh the Binder without enabling Wi-Fi. A reboot or terminated Shizuku server still requires a computer, USB ADB bridge, or root method to start Shizuku again. See the [USB start procedure](docs/USER_GUIDE_EN.md#stage-5--start-shizuku-over-usb-adb-for-wi-fi-free-use).
 
 ### How it works
 
@@ -146,7 +170,7 @@ Samsung outdoor boost, thermal dimming, power saving, HDR, and app-specific limi
 - [English detailed guide](docs/USER_GUIDE_EN.md)
 - [Document index / 문서 색인](docs/INDEX.md)
 - [Privacy and permissions / 개인정보 및 권한](docs/PRIVACY.md)
-- [v1.4.0 release notes](docs/RELEASE_NOTES_v1.4.0.md)
+- [v1.4.1 release notes](docs/RELEASE_NOTES_v1.4.1.md)
 - [Fold8 device test plan](docs/DEVICE_TEST_PLAN.md)
 - [Debug and regression ledger](docs/DEBUG_LEDGER.md)
 - [Project history](docs/PROJECT_HISTORY.md)

@@ -18,10 +18,13 @@
     <string name="neutral">Neutral</string>
     <string name="baseline">Default</string>
     <string name="system_value">Applied value %1$s</string>
+    <string name="saved_offset_value">Saved offset %1$s</string>
     <string name="read_setting_failed">Failed to read setting: %1$s</string>
     <string name="apply_selected_offset">Apply selected offset</string>
     <string name="manage_current_offset">Manage current offset</string>
     <string name="current_offset_active">Offset %1$s active</string>
+    <string name="current_offset_paused">Offset %1$s paused · start Shizuku</string>
+    <string name="offset_paused">Offset paused</string>
     <string name="restore_original_value_short">Restore original</string>
     <string name="restore_original_description">Clear this app’s temporary offset and return to system-managed adaptive brightness.</string>
     <string name="offset_explanation">The number is an offset strength, not a brightness percentage. Start with +10.</string>
@@ -41,6 +44,7 @@
     <string name="error_no_original">No original value is stored.</string>
     <string name="error_restore_rejected">The device rejected the restore request.</string>
     <string name="success_restored">The app offset was cleared and system adaptive brightness was restored.</string>
+    <string name="success_restore_queued">Restore queued. Start Shizuku, then open this app to finish automatically.</string>
     <string name="error_unknown_restore">An unknown restore error occurred.</string>
     <string name="error_shizuku_not_installed">Install Shizuku first.</string>
     <string name="error_shizuku_not_running">Start Shizuku first.</string>
@@ -58,6 +62,7 @@
     <string name="diag_original">Original</string>
     <string name="diag_last_applied">Last applied</string>
     <string name="diag_reapply_after_reboot">Reapply after reboot</string>
+    <string name="diag_pending_restore">Restore pending</string>
     <string name="diag_external_change">External change</string>
     <string name="diag_read_error">Read error</string>
     <string name="yes">Yes</string>
@@ -65,5 +70,13 @@
     <string name="management_notification_channel">Adaptive brightness management</string>
     <string name="management_notification_title">Auto brightness offset active</string>
     <string name="management_notification_text">Tracking ambient light and applying a %1$s offset.</string>
+    <string name="management_notification_reconnecting_title">Reconnecting brightness offset</string>
+    <string name="management_notification_reconnecting_text">Waiting to resume the %1$s offset.</string>
+    <string name="management_notification_paused_title">Brightness offset paused</string>
+    <string name="management_notification_paused_text">Start Shizuku, then open this app to resume the %1$s offset.</string>
+    <string name="management_notification_restore_pending_title">Restore pending</string>
+    <string name="management_notification_restore_pending_text">Start Shizuku, then open this app to clear the temporary offset.</string>
     <string name="management_notification_stop">Clear offset</string>
+    <string name="restore_pending_short">Restore pending</string>
+    <string name="restore_pending_description">Start Shizuku, then open this app to clear the temporary offset automatically.</string>
 </resources>

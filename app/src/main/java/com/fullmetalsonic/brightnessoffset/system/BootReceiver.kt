@@ -14,10 +14,15 @@ class BootReceiver : BroadcastReceiver() {
                 val repository = BrightnessRepository(context.applicationContext)
                 when (intent.action) {
                     Intent.ACTION_BOOT_COMPLETED -> {
+                        repository.resumePendingRestoreIfNeeded()
                         repository.markReapplyPending()
                         repository.reapplyPendingIfReady()
                     }
-                    Intent.ACTION_MY_PACKAGE_REPLACED -> repository.resumeManagedIfReady()
+                    Intent.ACTION_MY_PACKAGE_REPLACED -> {
+                        if (!repository.resumePendingRestoreIfNeeded()) {
+                            repository.resumeManagedIfReady()
+                        }
+                    }
                 }
             } finally {
                 pendingResult.finish()

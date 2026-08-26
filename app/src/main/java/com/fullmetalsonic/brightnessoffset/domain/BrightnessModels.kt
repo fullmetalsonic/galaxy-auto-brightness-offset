@@ -41,6 +41,7 @@ data class BrightnessSnapshot(
     val originalAdjustment: Float?,
     val lastAppliedAdjustment: Float?,
     val restoreOnBoot: Boolean,
+    val pendingRestore: Boolean,
     val externalChangeDetected: Boolean,
     val readError: String? = null,
 )
@@ -77,4 +78,27 @@ enum class PrivilegeStatus {
     CONNECTING,
     READY,
     ERROR,
+}
+
+enum class ManagementConnectionState {
+    ACTIVE,
+    RECONNECTING,
+    PAUSED,
+    RESTORE_PENDING,
+}
+
+object ManagementConnectionPolicy {
+    fun state(
+        privilegeStatus: PrivilegeStatus,
+        pendingRestore: Boolean,
+    ): ManagementConnectionState = when {
+        pendingRestore -> ManagementConnectionState.RESTORE_PENDING
+        privilegeStatus == PrivilegeStatus.READY -> ManagementConnectionState.ACTIVE
+        privilegeStatus == PrivilegeStatus.CONNECTING -> ManagementConnectionState.RECONNECTING
+        else -> ManagementConnectionState.PAUSED
+    }
+
+    fun canTrack(privilegeStatus: PrivilegeStatus): Boolean =
+        privilegeStatus == PrivilegeStatus.READY ||
+            privilegeStatus == PrivilegeStatus.CONNECTING
 }

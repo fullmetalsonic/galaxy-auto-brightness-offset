@@ -30,6 +30,7 @@ object DiagnosticReport {
                     ?: context.getString(R.string.not_recorded)),
         )
         appendLine("${context.getString(R.string.diag_reapply_after_reboot)}: ${snapshot.restoreOnBoot.toStatus(context)}")
+        appendLine("${context.getString(R.string.diag_pending_restore)}: ${snapshot.pendingRestore.toStatus(context)}")
         appendLine("${context.getString(R.string.diag_external_change)}: ${snapshot.externalChangeDetected.toStatus(context)}")
         append("${context.getString(R.string.diag_read_error)}: ${snapshot.readError ?: context.getString(R.string.none)}")
     }

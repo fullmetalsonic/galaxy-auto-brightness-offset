@@ -119,3 +119,39 @@
 - 수정 내용: 자체 Canvas 연속 트랙, 64dp 방사형 후광 손잡이, 자체 프리셋 Surface, 메인 숫자 이중 후광으로 교체. 배경 이미지만 별도 클리핑하고 후광 오버레이는 클리핑하지 않음
 - 자동 재발방지 장치: 확정 시안과 최신 실기기 캡처를 같은 비교 이미지에 넣는 `design-qa.md` 절차와 7개 프리셋 계약 단위시험 추가
 - 재시험 결과: Unit 13/13, Lint, Debug, R8 Release PASS. Fold8 커버 화면 실화면에서 숫자·손잡이 후광, 연속 트랙, 프리셋 중첩 판 제거, 주요 버튼과 하단 영역을 확인하고 `design-qa.md` 최종 판정 PASS
+
+## DBG-011 Shizuku 중지 후 관리 상태 잔류와 야외 Wi-Fi 오해
+
+- 증상: Shizuku 실제 서버가 중지되어도 자동 밝기 보정 알림과 저장된 `+75` 관리 상태가 남고, 사용자는 마지막 임시 밝기를 정상 자동 보정으로 오해할 수 있음
+- 재현 방법: 보정 관리 중 Shizuku 서버를 중지한 뒤 `shizuku_server` 프로세스, 앱 포그라운드 서비스와 `BrightnessManagement` 로그를 비교
+- 직접 원인: Shizuku Binder 종료 시 클라이언트 상태만 `NOT_RUNNING`으로 바뀌고 `BrightnessManagementService`는 중단·일시정지 상태로 전환되지 않음. 이미 적용된 임시 밝기는 Shizuku 없이 새 조도에 맞춰 갱신하거나 명시적으로 해제할 수 없음
+- 확인 증거: Shizuku 앱 프로세스만 존재하고 `shizuku_server`가 없는 상태에서 앱 서비스가 `Shizuku is not ready: NOT_RUNNING`을 반복 기록. USB ADB로 Shizuku v13.6.0 공식 실행 파일을 시작하자 `shizuku_server` PID `2576` 생성
+- 영향 범위: Shizuku 종료·재시작, 연결 상태 표시, 관리 알림, 조도 재계산, 원래 값 복원, 재부팅 후 재적용
+- 잘못된 기존 접근: Shizuku 관리 앱 프로세스가 보이면 실제 서버도 실행 중이라고 판단하거나, 야외 사용에는 Wi-Fi 연결이 항상 필요하다고 가정
+- 수정 내용: Shizuku 상태 Flow를 관리 서비스가 직접 구독하고 Binder 종료 시 센서 추적을 멈춰 `보정 일시 중지`로 전환. 연결이 끊긴 상태의 복원 요청은 관리 세션을 지우고 `pending_restore`로 저장하며 Shizuku 재연결 시 임시 밝기를 해제. 집에서 USB ADB로 Shizuku를 시작한 뒤 Wi-Fi 없이 쓰는 운영 경로도 문서화
+- 자동 재발방지 장치: 연결 상태 정책 JVM 시험 4건, Binder 중지 뒤 반복 로그 계수, 복원 대기 SharedPreferences, 재연결 뒤 서비스·임시 밝기 검사를 릴리스 전 시험에 추가
+- 재시험 결과: v1.4.1에서 Shizuku 중지 뒤 `보정 일시 중지` 표시, 6초간 반복 `NOT_RUNNING` 오류 0건. 연결 끊김 중 복원 요청은 `pending_restore=true`, 재시작 후 앱을 열면 키 제거·서비스 STOPPED·임시값 `NaN` PASS. `+75` 재적용은 `239 lux`, 기본 `0.34509805`, 실제 `0.627046` PASS. 무선 디버깅 OFF·Wi-Fi OFF 야외 운용은 기존 시험에서 PID 유지와 보정 재적용 PASS
+
+## DBG-012 Android 13 이상 관리 알림 권한을 요청하지 않음
+
+- 증상: 포그라운드 서비스는 동작하지만 Android 알림창에 관리·일시중지 알림이 보이지 않음
+- 재현 방법: Android 13 이상에서 앱을 처음 설치하고 `POST_NOTIFICATIONS` 권한 및 NotificationManager 상태 확인
+- 직접 원인: Manifest에는 `POST_NOTIFICATIONS`가 선언되어 있으나 런타임 권한 요청 코드가 없음
+- 확인 증거: Fold8 패키지 상태에서 `POST_NOTIFICATIONS: granted=false`, 앱 알림 중요도 `NONE`, 서비스만 RUNNING
+- 영향 범위: 작동 상태 확인, 알림의 `보정 해제`, Shizuku 일시중지 안내
+- 잘못된 기존 접근: Manifest 선언만으로 최신 Android가 알림 권한 창을 자동 표시한다고 가정
+- 수정 내용: Android 13 이상에서 첫 실행에 한 번만 표준 알림 권한을 요청하고, 거부 시 반복 요청하지 않도록 로컬 요청 여부 저장
+- 자동 재발방지 장치: 권한 미부여 상태에서 새 빌드를 열어 실제 시스템 권한 창과 허용 후 NotificationRecord를 확인
+- 재시험 결과: Fold8에서 한국어 시스템 권한 창 표시, 허용 후 `granted=true`, 관리 알림 중요도 `DEFAULT`, `보정 해제` 액션 1개 확인 PASS
+
+## DBG-013 Wi-Fi OFF 뒤 2~3분 후 Shizuku 접근 해제
+
+- 증상: USB ADB로 Shizuku를 시작하고 Wi-Fi를 끈 직후에는 보정이 동작하지만 약 2~3분 뒤 앱이 Shizuku 미실행 상태로 바뀌고 임시 밝기가 해제됨
+- 재현 방법: `+75` 관리 상태에서 Wi-Fi와 무선 디버깅을 끄고 3분 동안 Shizuku PID, 앱 상태, 임시 패널 밝기와 One UI 로그를 함께 관찰
+- 직접 원인: `shizuku_server` PID는 살아 있었으나 Samsung Freecess가 Shizuku 관리 앱을 동결해 클라이언트 Binder 전달이 끊김. Wi-Fi 자체가 직접 원인은 아니었음
+- 확인 증거: 실패 시 `shizuku_server` PID 유지, 앱은 `SHIZUKU_NOT_RUNNING`, 임시 밝기 `NaN`; One UI 로그에 Shizuku 패키지 Freecess 동결 기록. Wi-Fi OFF 상태에서 Shizuku 앱을 열고 자동 밝기 보정 앱을 열자 Binder 재연결과 대기 작업 완료
+- 영향 범위: Wi-Fi 없는 야외 운용, 화면 잠금·재점등 재적용, Shizuku 연결 상태와 사용 안내
+- 잘못된 기존 접근: Shizuku 서버 PID 유지 여부만으로 장시간 야외 운용이 보장된다고 판단
+- 수정 내용: Shizuku와 자동 밝기 보정 두 앱을 `배터리 제한 없음` 및 `절전 상태로 전환하지 않을 앱`에 두도록 한·영 안내를 보강. 접근이 풀리면 Wi-Fi 없이 `Shizuku 열기 → 자동 밝기 보정 열기`로 복구하도록 명시
+- 자동 재발방지 장치: 야외 시험에 두 앱의 절전 예외 확인, 화면 켠 백그라운드 3분, 화면 잠금, 재점등, Shizuku PID·서비스·실제 임시 밝기 확인을 추가
+- 재시험 결과: 절전 예외 적용 뒤 Wi-Fi OFF에서 화면 켠 백그라운드 0~180초 동안 PID `18637`과 임시 밝기 `0.63016194` 유지. 화면 OFF에서 의도대로 `NaN`, 약 120초 뒤 화면 ON 시 `0.63016194` 자동 재적용 후 조도 변화에 따라 `0.61115956`으로 재계산하고 180초까지 유지 — PASS

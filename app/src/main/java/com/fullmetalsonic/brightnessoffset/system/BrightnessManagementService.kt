@@ -24,12 +24,20 @@ import com.fullmetalsonic.brightnessoffset.R
 import com.fullmetalsonic.brightnessoffset.data.ManagementPreferences
 import com.fullmetalsonic.brightnessoffset.domain.AdjustmentScale
 import com.fullmetalsonic.brightnessoffset.domain.BrightnessCompensation
+import com.fullmetalsonic.brightnessoffset.domain.ManagementConnectionPolicy
+import com.fullmetalsonic.brightnessoffset.domain.ManagementConnectionState
 import com.fullmetalsonic.brightnessoffset.domain.PrivilegeStatus
 import com.fullmetalsonic.brightnessoffset.shizuku.PrivilegedSettingsContract
 import com.fullmetalsonic.brightnessoffset.shizuku.ShizukuPrivilegeClient
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 /**
  * Keeps Samsung's ambient-light curve active while applying a temporary,
@@ -38,6 +46,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 class BrightnessManagementService : Service(), SensorEventListener {
     private val worker = Executors.newSingleThreadExecutor()
     private val updateInFlight = AtomicBoolean(false)
+    private val restoreInFlight = AtomicBoolean(false)
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private lateinit var sensorManager: SensorManager
     private var lightSensor: Sensor? = null
     private var sensorRegistered = false
@@ -45,6 +55,9 @@ class BrightnessManagementService : Service(), SensorEventListener {
     private var adjustment = AdjustmentScale.NEUTRAL
     private var curveState: CurveState? = null
     private var lastQueryAt = 0L
+    private var commandInitialized = false
+    private var pendingRestoreMode = false
+    private var privilegeStatus = PrivilegeStatus.CONNECTING
 
     private val privilegeClient: PrivilegedSettingsContract by lazy {
         ShizukuPrivilegeClient.get(applicationContext)
@@ -56,9 +69,9 @@ class BrightnessManagementService : Service(), SensorEventListener {
                 Intent.ACTION_SCREEN_OFF -> {
                     stopSensorTracking()
                     curveState = null
-                    worker.execute(::clearTemporaryBrightness)
+                    worker.execute { clearTemporaryBrightness() }
                 }
-                Intent.ACTION_SCREEN_ON -> startSensorTracking()
+                Intent.ACTION_SCREEN_ON -> handlePrivilegeStatus(privilegeStatus)
             }
         }
     }
@@ -68,7 +81,13 @@ class BrightnessManagementService : Service(), SensorEventListener {
         sensorManager = getSystemService(SensorManager::class.java)
         lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT)
         createNotificationChannel()
-        startForeground(NOTIFICATION_ID, buildNotification(AdjustmentScale.NEUTRAL))
+        startForeground(
+            NOTIFICATION_ID,
+            buildNotification(
+                AdjustmentScale.NEUTRAL,
+                ManagementConnectionState.RECONNECTING,
+            ),
+        )
         ContextCompat.registerReceiver(
             this,
             screenReceiver,
@@ -79,15 +98,30 @@ class BrightnessManagementService : Service(), SensorEventListener {
             ContextCompat.RECEIVER_NOT_EXPORTED,
         )
         receiverRegistered = true
+        serviceScope.launch {
+            privilegeClient.status.collect { status ->
+                handlePrivilegeStatus(status)
+            }
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == ACTION_STOP) {
-            stopManagement(clearSession = true)
-            return START_NOT_STICKY
+        if (intent?.action == ACTION_RESTORE) {
+            requestRestore()
+            return START_STICKY
         }
 
-        val stored = ManagementPreferences(this).lastAppliedAdjustment
+        val preferences = ManagementPreferences(this)
+        if (preferences.pendingRestore) {
+            commandInitialized = true
+            pendingRestoreMode = true
+            stopSensorTracking()
+            curveState = null
+            handlePrivilegeStatus(privilegeClient.refreshStatus())
+            return START_STICKY
+        }
+
+        val stored = preferences.lastAppliedAdjustment
         val requested = intent?.takeIf { it.hasExtra(EXTRA_ADJUSTMENT) }
             ?.getFloatExtra(EXTRA_ADJUSTMENT, AdjustmentScale.NEUTRAL)
             ?: stored
@@ -102,11 +136,10 @@ class BrightnessManagementService : Service(), SensorEventListener {
             return START_NOT_STICKY
         }
 
-        startForeground(NOTIFICATION_ID, buildNotification(adjustment))
+        commandInitialized = true
+        pendingRestoreMode = false
         curveState = null
-        if (getSystemService(PowerManager::class.java).isInteractive) {
-            startSensorTracking()
-        }
+        handlePrivilegeStatus(privilegeClient.refreshStatus())
         return START_STICKY
     }
 
@@ -124,7 +157,13 @@ class BrightnessManagementService : Service(), SensorEventListener {
             try {
                 updateForAmbientLux(lux)
             } catch (error: Throwable) {
-                Log.e(TAG, "Brightness tracking update failed.", error)
+                val status = privilegeClient.refreshStatus()
+                if (ManagementConnectionPolicy.canTrack(status)) {
+                    Log.e(TAG, "Brightness tracking update failed.", error)
+                } else {
+                    Log.w(TAG, "Brightness tracking paused: $status")
+                    serviceScope.launch { handlePrivilegeStatus(status) }
+                }
             } finally {
                 updateInFlight.set(false)
             }
@@ -142,6 +181,7 @@ class BrightnessManagementService : Service(), SensorEventListener {
         val cleanup = worker.submit(::clearTemporaryBrightness)
         runCatching { cleanup.get(CLEANUP_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS) }
         worker.shutdownNow()
+        serviceScope.cancel()
         super.onDestroy()
     }
 
@@ -149,7 +189,7 @@ class BrightnessManagementService : Service(), SensorEventListener {
 
     private fun updateForAmbientLux(lux: Float) {
         val status = privilegeClient.refreshStatus()
-        check(status == PrivilegeStatus.READY || status == PrivilegeStatus.CONNECTING) {
+        check(ManagementConnectionPolicy.canTrack(status)) {
             "Shizuku is not ready: $status"
         }
         val values = privilegeClient.readAutomaticBrightnessState(lux)
@@ -200,19 +240,82 @@ class BrightnessManagementService : Service(), SensorEventListener {
     private fun stopManagement(clearSession: Boolean) {
         stopSensorTracking()
         if (clearSession) ManagementPreferences(this).clearSession()
-        worker.execute(::clearTemporaryBrightness)
+        worker.execute { clearTemporaryBrightness() }
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
 
-    private fun clearTemporaryBrightness() {
+    private fun handlePrivilegeStatus(status: PrivilegeStatus) {
+        privilegeStatus = status
+        if (!commandInitialized) return
+        val state = ManagementConnectionPolicy.state(status, pendingRestoreMode)
+        when (state) {
+            ManagementConnectionState.ACTIVE -> {
+                updateNotification(state)
+                curveState = null
+                if (getSystemService(PowerManager::class.java).isInteractive) {
+                    startSensorTracking()
+                }
+            }
+            ManagementConnectionState.RECONNECTING -> {
+                updateNotification(state)
+                stopSensorTracking()
+                curveState = null
+            }
+            ManagementConnectionState.PAUSED -> {
+                updateNotification(state)
+                stopSensorTracking()
+                curveState = null
+            }
+            ManagementConnectionState.RESTORE_PENDING -> {
+                updateNotification(state)
+                stopSensorTracking()
+                curveState = null
+                if (status == PrivilegeStatus.READY) completePendingRestore()
+            }
+        }
+    }
+
+    private fun requestRestore() {
+        val preferences = ManagementPreferences(this)
+        if (!preferences.pendingRestore) preferences.queueRestore()
+        commandInitialized = true
+        pendingRestoreMode = true
+        stopSensorTracking()
+        curveState = null
+        handlePrivilegeStatus(privilegeClient.refreshStatus())
+    }
+
+    private fun completePendingRestore() {
+        if (!restoreInFlight.compareAndSet(false, true)) return
+        worker.execute {
+            val cleared = clearTemporaryBrightness()
+            if (cleared) ManagementPreferences(this).completePendingRestore()
+            serviceScope.launch {
+                restoreInFlight.set(false)
+                if (cleared) {
+                    stopSensorTracking()
+                    stopForeground(STOP_FOREGROUND_REMOVE)
+                    stopSelf()
+                } else {
+                    handlePrivilegeStatus(privilegeClient.refreshStatus())
+                }
+            }
+        }
+    }
+
+    private fun clearTemporaryBrightness(): Boolean =
         runCatching {
             val status = privilegeClient.refreshStatus()
-            if (status == PrivilegeStatus.READY || status == PrivilegeStatus.CONNECTING) {
-                privilegeClient.clearTemporaryBrightness(DEFAULT_DISPLAY)
+            if (!ManagementConnectionPolicy.canTrack(status)) return@runCatching false
+            privilegeClient.clearTemporaryBrightness(DEFAULT_DISPLAY) &&
                 privilegeClient.clearTemporaryAdjustment()
-            }
         }.onFailure { Log.w(TAG, "Could not clear temporary brightness.", it) }
+            .getOrDefault(false)
+
+    private fun updateNotification(state: ManagementConnectionState) {
+        val manager = getSystemService(NotificationManager::class.java)
+        manager.notify(NOTIFICATION_ID, buildNotification(adjustment, state))
     }
 
     private fun createNotificationChannel() {
@@ -226,7 +329,10 @@ class BrightnessManagementService : Service(), SensorEventListener {
         )
     }
 
-    private fun buildNotification(value: Float): Notification {
+    private fun buildNotification(
+        value: Float,
+        state: ManagementConnectionState,
+    ): Notification {
         val contentIntent = PendingIntent.getActivity(
             this,
             0,
@@ -236,28 +342,49 @@ class BrightnessManagementService : Service(), SensorEventListener {
         val stopIntent = PendingIntent.getService(
             this,
             1,
-            Intent(this, BrightnessManagementService::class.java).setAction(ACTION_STOP),
+            Intent(this, BrightnessManagementService::class.java).setAction(ACTION_RESTORE),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
-        return NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle(getString(R.string.management_notification_title))
-            .setContentText(
-                getString(
-                    R.string.management_notification_text,
-                    AdjustmentScale.signedPoints(value),
-                ),
+        val title = when (state) {
+            ManagementConnectionState.ACTIVE -> R.string.management_notification_title
+            ManagementConnectionState.RECONNECTING ->
+                R.string.management_notification_reconnecting_title
+            ManagementConnectionState.PAUSED -> R.string.management_notification_paused_title
+            ManagementConnectionState.RESTORE_PENDING ->
+                R.string.management_notification_restore_pending_title
+        }
+        val text = when (state) {
+            ManagementConnectionState.ACTIVE -> getString(
+                R.string.management_notification_text,
+                AdjustmentScale.signedPoints(value),
             )
+            ManagementConnectionState.RECONNECTING -> getString(
+                R.string.management_notification_reconnecting_text,
+                AdjustmentScale.signedPoints(value),
+            )
+            ManagementConnectionState.PAUSED -> getString(
+                R.string.management_notification_paused_text,
+                AdjustmentScale.signedPoints(value),
+            )
+            ManagementConnectionState.RESTORE_PENDING ->
+                getString(R.string.management_notification_restore_pending_text)
+        }
+        val builder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentTitle(getString(title))
+            .setContentText(text)
             .setContentIntent(contentIntent)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
-            .addAction(
+        if (state != ManagementConnectionState.RESTORE_PENDING) {
+            builder.addAction(
                 0,
                 getString(R.string.management_notification_stop),
                 stopIntent,
             )
-            .build()
+        }
+        return builder.build()
     }
 
     private data class CurveState(
@@ -274,8 +401,8 @@ class BrightnessManagementService : Service(), SensorEventListener {
         private const val TAG = "BrightnessManagement"
         private const val ACTION_START =
             "com.fullmetalsonic.brightnessoffset.action.START_MANAGEMENT"
-        private const val ACTION_STOP =
-            "com.fullmetalsonic.brightnessoffset.action.STOP_MANAGEMENT"
+        private const val ACTION_RESTORE =
+            "com.fullmetalsonic.brightnessoffset.action.RESTORE_MANAGEMENT"
         private const val EXTRA_ADJUSTMENT = "adjustment"
         private const val NOTIFICATION_CHANNEL_ID = "brightness_management"
         private const val NOTIFICATION_ID = 37021
@@ -293,6 +420,12 @@ class BrightnessManagementService : Service(), SensorEventListener {
 
         fun stop(context: Context) {
             context.stopService(Intent(context, BrightnessManagementService::class.java))
+        }
+
+        fun queueRestore(context: Context) {
+            val intent = Intent(context, BrightnessManagementService::class.java)
+                .setAction(ACTION_RESTORE)
+            ContextCompat.startForegroundService(context, intent)
         }
     }
 }

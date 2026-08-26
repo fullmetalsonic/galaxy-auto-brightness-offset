@@ -45,6 +45,7 @@ class BrightnessRepository(
                 originalAdjustment = managementPreferences.originalAdjustment,
                 lastAppliedAdjustment = lastApplied,
                 restoreOnBoot = managementPreferences.restoreOnBoot,
+                pendingRestore = managementPreferences.pendingRestore,
                 // Android exposes no public getter for a temporary auto-brightness
                 // adjustment. The live value is verified during device tests instead.
                 externalChangeDetected = false,
@@ -58,6 +59,7 @@ class BrightnessRepository(
                 originalAdjustment = managementPreferences.originalAdjustment,
                 lastAppliedAdjustment = managementPreferences.lastAppliedAdjustment,
                 restoreOnBoot = managementPreferences.restoreOnBoot,
+                pendingRestore = managementPreferences.pendingRestore,
                 externalChangeDetected = false,
                 readError = error.message ?: error.javaClass.simpleName,
             )
@@ -74,6 +76,12 @@ class BrightnessRepository(
         }
 
         return runCatching {
+            if (!completePendingRestoreIfReady()) {
+                return OperationResult.Failure(
+                    FailureReason.WRITE_REJECTED,
+                    context.getString(R.string.error_restore_rejected),
+                )
+            }
             val normalized = AdjustmentScale.normalize(value)
             if (AdjustmentScale.isSame(normalized, AdjustmentScale.NEUTRAL)) {
                 BrightnessManagementService.stop(context)
@@ -109,11 +117,22 @@ class BrightnessRepository(
     }
 
     override fun restoreOriginal(): OperationResult {
-        privilegeFailure(privilegedSettings.refreshStatus())?.let { return it }
-        if (!managementPreferences.isManaged) {
+        if (!managementPreferences.isManaged && !managementPreferences.pendingRestore) {
             return OperationResult.Failure(
                 FailureReason.NO_ORIGINAL_VALUE,
                 context.getString(R.string.error_no_original),
+            )
+        }
+
+        val status = privilegedSettings.refreshStatus()
+        if (status != PrivilegeStatus.READY) {
+            if (!managementPreferences.pendingRestore) {
+                managementPreferences.queueRestore()
+            }
+            BrightnessManagementService.queueRestore(context)
+            return OperationResult.Success(
+                AdjustmentScale.NEUTRAL,
+                context.getString(R.string.success_restore_queued),
             )
         }
 
@@ -152,6 +171,9 @@ class BrightnessRepository(
     }
 
     override fun reapplyPendingIfReady(): Boolean {
+        if (managementPreferences.pendingRestore) {
+            return completePendingRestoreIfReady()
+        }
         if (!managementPreferences.isManaged) return false
         val applied = resumeManagedIfReady()
         if (applied) managementPreferences.reapplyPending = false
@@ -159,8 +181,18 @@ class BrightnessRepository(
     }
 
     fun reapplyAfterBoot(): Boolean {
+        if (managementPreferences.pendingRestore) {
+            resumePendingRestoreIfNeeded()
+            return false
+        }
         if (!managementPreferences.isManaged || !managementPreferences.restoreOnBoot) return false
         return resumeManagedIfReady()
+    }
+
+    fun resumePendingRestoreIfNeeded(): Boolean {
+        if (!managementPreferences.pendingRestore) return false
+        BrightnessManagementService.queueRestore(context)
+        return true
     }
 
     fun resumeManagedIfReady(): Boolean {
@@ -172,6 +204,20 @@ class BrightnessRepository(
         return runCatching {
             BrightnessManagementService.start(context, target)
             true
+        }.getOrDefault(false)
+    }
+
+    private fun completePendingRestoreIfReady(): Boolean {
+        if (!managementPreferences.pendingRestore) return true
+        if (privilegedSettings.refreshStatus() != PrivilegeStatus.READY) return false
+        return runCatching {
+            val cleared = privilegedSettings.clearTemporaryBrightness(DEFAULT_DISPLAY) &&
+                privilegedSettings.clearTemporaryAdjustment()
+            if (cleared) {
+                managementPreferences.completePendingRestore()
+                BrightnessManagementService.stop(context)
+            }
+            cleared
         }.getOrDefault(false)
     }
 

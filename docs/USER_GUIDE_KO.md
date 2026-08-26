@@ -1,6 +1,6 @@
-# 자동 밝기 보정 v1.4.0 상세 설명서
+# 자동 밝기 보정 v1.4.1 상세 설명서
 
-[README로 돌아가기](../README.md) · [English guide](USER_GUIDE_EN.md) · [v1.4.0 다운로드](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/tag/v1.4.0)
+[README로 돌아가기](../README.md) · [English guide](USER_GUIDE_EN.md) · [v1.4.1 다운로드](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/tag/v1.4.1)
 
 이 문서는 삼성 갤럭시에서 Shizuku와 자동 밝기 보정 앱을 처음 설치하는 사람을 위한 단계별 설명서입니다. 화면 명칭은 One UI와 Shizuku 버전에 따라 조금 다를 수 있습니다.
 
@@ -24,7 +24,7 @@
 - 인터넷 연결: Shizuku와 APK를 내려받을 때만 필요
 - 삼성 `자동 밝기` 활성화
 - 공식 Shizuku 앱
-- Auto Brightness Offset v1.4.0 APK
+- Auto Brightness Offset v1.4.1 APK
 
 Android 11 이상은 휴대폰만으로 무선 디버깅을 통해 Shizuku를 시작할 수 있습니다. Android 10 이하는 PC의 ADB 방식이 필요합니다.
 
@@ -76,34 +76,61 @@ Android 11 이상 기준입니다.
 
 공식 절차: [Shizuku setup guide](https://shizuku.rikka.app/guide/setup/)
 
-## 5단계: Android 10 이하 또는 PC ADB 방식
+## 5단계: USB ADB로 Shizuku 시작하고 Wi-Fi 없이 사용
 
-Android 11 이상이라면 이 단계를 건너뜁니다.
+Android 11 이상에서도 집에서 PC로 Shizuku를 시작해 두면 야외에서 Wi-Fi 연결 없이 사용할 수 있습니다. 아래 순서는 Shizuku v13.6.0과 Galaxy Z Fold8에서 실제 확인했습니다.
 
 1. PC에 공식 [Android SDK Platform Tools](https://developer.android.com/tools/releases/platform-tools)를 받습니다.
 2. 휴대폰 개발자 옵션에서 `USB 디버깅`을 켭니다.
 3. USB로 연결하고 휴대폰의 디버깅 허용 창을 승인합니다.
 4. PC 터미널에서 `adb devices`를 실행해 `device` 상태인지 확인합니다.
-5. 다음 공식 Shizuku 시작 명령을 실행합니다.
+5. 먼저 Shizuku 앱 또는 공식 안내에 표시된 현재 ADB 시작 명령을 실행합니다. 일반적으로 다음 명령이 제공됩니다.
 
 ```text
 adb shell sh /sdcard/Android/data/moe.shizuku.privileged.api/start.sh
 ```
 
-6. Shizuku 앱에서 실행 중 상태를 확인합니다.
+6. 위 경로를 찾지 못하는 최신 Shizuku에서는 PowerShell에서 설치된 실행 파일 경로를 조회해 시작할 수 있습니다.
+
+```powershell
+$line = adb shell dumpsys package moe.shizuku.privileged.api |
+    Select-String "legacyNativeLibraryDir=" |
+    Select-Object -First 1
+$libDir = ($line.ToString().Trim() -split "=", 2)[1]
+adb shell "$libDir/arm64/libshizuku.so"
+```
+
+7. `adb shell pidof shizuku_server`가 숫자 PID를 출력하는지 확인합니다.
+8. Shizuku 앱에서도 실행 중 상태를 확인합니다.
+9. `설정 → 애플리케이션 → Shizuku → 배터리`에서 `제한 없음`을 선택합니다.
+10. 같은 방법으로 `자동 밝기 보정 → 배터리 → 제한 없음`을 선택합니다.
+11. `설정 → 배터리 → 백그라운드 사용 제한 → 절전 상태로 전환하지 않을 앱`에 Shizuku와 자동 밝기 보정을 모두 추가합니다. One UI 버전에 따라 메뉴 이름이 조금 다를 수 있습니다.
+12. USB 케이블을 빼고 Wi-Fi와 `무선 디버깅`을 꺼도 보정은 계속 동작합니다. Fold8 실기기 시험에서는 `USB 디버깅`은 켠 상태로 유지했습니다.
+
+Fold8 One UI 9에서는 두 앱의 절전 제한을 해제한 뒤 Wi-Fi OFF 상태에서 화면을 켠 채 백그라운드 3분, 화면 잠금, 재점등 후 자동 재적용을 실제 확인했습니다. 이것은 해당 시험 결과이며 모든 One UI 버전에서 영구 동작을 보장한다는 뜻은 아닙니다.
+
+중요한 제한:
+
+- USB는 Shizuku를 **시작할 때만** 필요하며, 사용 중 계속 연결할 필요는 없습니다.
+- Wi-Fi와 무선 디버깅도 시작 후에는 계속 켜 둘 필요가 없습니다.
+- 삼성 절전 관리가 Shizuku 또는 이 앱을 동결하지 않도록 두 앱 모두 배터리 제한을 해제해야 합니다.
+- Shizuku PID가 살아 있는데 앱에 `보정 일시 중지`가 보이면 Wi-Fi를 켜지 말고 **Shizuku 앱 열기 → 자동 밝기 보정 앱 열기** 순서로 실행해 연결을 다시 받습니다.
+- 휴대폰을 재부팅하거나 Shizuku 서버가 종료되면 다시 시작해야 합니다.
+- 야외에서 재시작하려면 PC, Raspberry Pi 같은 USB ADB 브리지 또는 루트 방식이 필요합니다.
+- Shizuku 버전에 따라 시작 명령이 달라질 수 있으므로 공식 앱에 표시된 명령이 있으면 그것을 우선합니다.
 
 ## 6단계: Auto Brightness Offset APK 설치
 
-1. GitHub [v1.4.0 Release](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/tag/v1.4.0)를 엽니다.
-2. `AutoBrightnessOffset-v1.4.0-release.apk`를 내려받습니다.
+1. GitHub [v1.4.1 Release](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/releases/tag/v1.4.1)를 엽니다.
+2. `AutoBrightnessOffset-v1.4.1-release.apk`를 내려받습니다.
 3. 다운로드 완료 알림이나 `내 파일 → 다운로드`에서 APK를 엽니다.
 4. Android가 요구하면 현재 브라우저 또는 내 파일 앱의 `출처를 알 수 없는 앱 설치`를 이번 설치에 허용합니다.
 5. 설치가 끝나면 해당 허용은 다시 꺼도 됩니다.
 
 파일 검증값:
 
-- 크기: `3,466,647 bytes`
-- SHA-256: `7052CB8EC87544481D6CF9824F8B79D2243FBF901CB45246087814617D8931C9`
+- 크기: `3,474,839 bytes`
+- SHA-256: `91B5700052DECF3BCCBC67B17684CF90DF4B7C2955FCBD9A1AD1799DA472BBD0`
 - 빌드·서명: R8 최적화 Release, Android Debug 인증서, APK Signature Scheme v2·v3
 
 이 파일은 Google Play 배포 서명이 아닌 개인 테스트용 디버그 서명 APK입니다.
@@ -117,7 +144,7 @@ adb shell sh /sdcard/Android/data/moe.shizuku.privileged.api/start.sh
 5. `Shizuku 연결`과 `자동 밝기` 옆에 정상 표시가 있는지 확인합니다.
 6. 알림 권한 창이 나오면 허용합니다. 보정 작동 중 상태와 `보정 해제` 버튼을 표시하는 데 사용됩니다.
 
-![자동 밝기 보정 준비 완료 화면](images/app-home-ko-v1.4.0.png)
+![자동 밝기 보정 준비 완료 화면](images/app-home-ko-v1.4.1.png)
 
 권한을 잘못 거부했다면 Shizuku 앱의 `승인된 애플리케이션`에서 자동 밝기 보정을 찾아 다시 허용합니다.
 
@@ -135,7 +162,7 @@ adb shell sh /sdcard/Android/data/moe.shizuku.privileged.api/start.sh
 
 `-75`, `-50`, `-25`, `0`, `+25`, `+50`, `+75`를 한 번 눌러 선택할 수 있습니다.
 
-![0 프리셋 선택 화면](images/app-select-offset-ko-v1.4.0.png)
+![0 프리셋 선택 화면](images/app-select-offset-ko-v1.4.1.png)
 
 처음에는 `+10` 또는 `-10`처럼 작은 값부터 시험하십시오. `+75~+100`과 `-75~-100`은 변화가 매우 큽니다.
 
@@ -173,7 +200,11 @@ Shizuku를 시작하지 않으면 보정은 자동으로 살아나지 않습니�
 
 복원하면 임시 밝기 오버라이드와 관리 서비스가 해제되고 삼성 자동 밝기가 다시 직접 제어합니다.
 
-![복원·진단·재부팅 설정](images/app-settings-ko-v1.4.0.png)
+Shizuku가 꺼진 동안 복원을 누르면 앱은 `원래 값 복원 대기`로 전환합니다. 이때 Shizuku를 시작하고 앱을 한 번 열면 임시 보정을 자동으로 해제합니다.
+
+![Shizuku 연결이 끊긴 상태의 원래 값 복원 대기](images/app-restore-pending-ko-v1.4.1.png)
+
+![복원·진단·재부팅 설정](images/app-settings-ko-v1.4.1.png)
 
 ## 12단계: 진단 정보 사용
 
@@ -185,6 +216,7 @@ Shizuku를 시작하지 않으면 보정은 자동으로 살아나지 않습니�
 - 현재/마지막 보정값
 - 보정 관리 여부
 - 재부팅 후 재적용 설정
+- 원래 값 복원 대기 여부
 
 오류를 신고할 때 비밀번호, 계정, 사진 같은 개인정보는 포함되지 않습니다. 그래도 공유 전에는 복사된 문장을 직접 확인하십시오.
 
@@ -193,7 +225,9 @@ Shizuku를 시작하지 않으면 보정은 자동으로 살아나지 않습니�
 | 증상 | 확인 | 조치 |
 |---|---|---|
 | `Shizuku를 먼저 설치` | Shizuku 앱 미설치 | 공식 다운로드 페이지에서 설치 |
-| `Shizuku를 먼저 시작` | 서비스가 꺼짐 | 무선 디버깅을 켜고 Shizuku에서 시작 |
+| `Shizuku를 먼저 시작` | 서비스가 꺼짐 | 무선 디버깅 또는 USB ADB로 Shizuku 시작 후 앱 열기 |
+| `보정 일시 중지` | 사용 중 Shizuku 서버 종료 | Shizuku 시작 후 앱을 한 번 열어 마지막 값 재적용 |
+| `원래 값 복원 대기` | 연결이 끊긴 상태에서 복원 요청 | Shizuku 시작 후 앱을 열어 자동 복원 완료 확인 |
 | Shizuku 권한 필요 | 앱 권한 거부 | Shizuku의 승인된 앱에서 허용 |
 | 자동 밝기 필요 | 수동 밝기 사용 중 | 삼성 설정에서 자동 밝기 켜기 |
 | 적용했는데 차이가 작음 | 값이 작거나 주변 조도가 변함 | 같은 위치에서 `+25`, `+50`처럼 단계적으로 비교 |
@@ -201,15 +235,19 @@ Shizuku를 시작하지 않으면 보정은 자동으로 살아나지 않습니�
 | 알림이 안 보임 | 알림 권한 차단 | Android 앱 정보에서 알림 허용 |
 | 재부팅 후 작동 안 함 | Shizuku가 중지됨 | Shizuku 시작 후 앱 다시 열기 |
 | 무선 디버깅 시작 실패 | 페어링/네트워크 문제 | 무선 디버깅 재시작 후 재페어링 |
+| Wi-Fi를 끈 뒤 2~3분 후 보정이 멈춤 | 삼성 절전 관리가 Shizuku Binder 또는 앱을 동결 | 두 앱을 `배터리 제한 없음`과 `절전 상태로 전환하지 않을 앱`에 추가 |
+| Shizuku는 실행 중인데 `보정 일시 중지` | 앱이 Shizuku Binder를 다시 받지 못함 | Wi-Fi 없이 Shizuku 앱을 연 뒤 자동 밝기 보정 앱 열기 |
+| 야외에서 Wi-Fi 없음 | USB로 미리 시작하지 않음 | 출발 전 USB ADB로 Shizuku 시작하고 두 앱의 절전 제한을 해제한 뒤 재부팅하지 않기 |
 | One UI 업데이트 후 실패 | 비공개 API 변경 가능 | `기기 진단` 복사 후 Issue에 보고 |
 
 ## 14단계: 삭제와 정리
 
 1. 먼저 앱에서 `원래 값 복원`을 누릅니다.
-2. 알림이 사라졌는지 확인합니다.
-3. Android 앱 정보에서 자동 밝기 보정을 삭제합니다.
-4. 다른 앱에서 Shizuku를 쓰지 않는다면 Shizuku도 중지하거나 삭제할 수 있습니다.
-5. 개발자 옵션이 필요 없으면 무선 디버깅과 USB 디버깅을 끕니다.
+2. `원래 값 복원 대기`가 보이면 Shizuku를 시작하고 앱을 다시 열어 복원을 완료합니다.
+3. 알림이 사라졌는지 확인합니다.
+4. Android 앱 정보에서 자동 밝기 보정을 삭제합니다.
+5. 다른 앱에서 Shizuku를 쓰지 않는다면 Shizuku도 중지하거나 삭제할 수 있습니다.
+6. 개발자 옵션이 필요 없으면 무선 디버깅과 USB 디버깅을 끕니다.
 
 ## 15단계: 개인정보·안전·한계
 
@@ -218,6 +256,7 @@ Shizuku를 시작하지 않으면 보정은 자동으로 살아나지 않습니�
 - 저장하는 값은 관리 여부, 마지막 보정 강도, 재부팅 후 재적용 선택뿐입니다.
 - 조도 센서 이력이나 화면 내용은 저장·전송하지 않습니다.
 - Shizuku 앱의 동작과 네트워크 정책은 Shizuku의 정책을 따릅니다.
+- 두 앱을 배터리 제한에서 제외하면 Android가 백그라운드 실행을 더 오래 허용하므로 기본 설정보다 배터리를 더 사용할 수 있습니다.
 - 야외 고휘도, 발열 감광, 절전 모드, HDR, 앱별 밝기 제한은 시스템이 우선합니다.
 - 삼성 전용 명령과 비공개 임시 API를 사용하므로 다른 제조사나 향후 One UI에서 실패할 수 있습니다.
 

@@ -27,8 +27,12 @@ class ManagementPreferences(context: Context) {
             preferences.edit { putBoolean(KEY_REAPPLY_PENDING, value) }
         }
 
+    val pendingRestore: Boolean
+        get() = preferences.getBoolean(KEY_PENDING_RESTORE, false)
+
     fun startOrUpdateSession(original: Float, applied: Float, wasManaged: Boolean) {
         preferences.edit {
+            remove(KEY_PENDING_RESTORE)
             putBoolean(KEY_IS_MANAGED, true)
             if (!wasManaged || !preferences.contains(KEY_ORIGINAL)) {
                 putFloat(KEY_ORIGINAL, original)
@@ -44,7 +48,23 @@ class ManagementPreferences(context: Context) {
             remove(KEY_LAST_APPLIED)
             putBoolean(KEY_RESTORE_ON_BOOT, false)
             remove(KEY_REAPPLY_PENDING)
+            remove(KEY_PENDING_RESTORE)
         }
+    }
+
+    fun queueRestore() {
+        preferences.edit {
+            remove(KEY_IS_MANAGED)
+            remove(KEY_ORIGINAL)
+            remove(KEY_LAST_APPLIED)
+            putBoolean(KEY_RESTORE_ON_BOOT, false)
+            remove(KEY_REAPPLY_PENDING)
+            putBoolean(KEY_PENDING_RESTORE, true)
+        }
+    }
+
+    fun completePendingRestore() {
+        preferences.edit { remove(KEY_PENDING_RESTORE) }
     }
 
     companion object {
@@ -54,5 +74,6 @@ class ManagementPreferences(context: Context) {
         private const val KEY_LAST_APPLIED = "last_applied_adjustment"
         private const val KEY_RESTORE_ON_BOOT = "restore_on_boot"
         private const val KEY_REAPPLY_PENDING = "reapply_pending"
+        private const val KEY_PENDING_RESTORE = "pending_restore"
     }
 }
