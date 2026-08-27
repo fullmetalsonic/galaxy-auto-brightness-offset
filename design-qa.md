@@ -1,4 +1,44 @@
-# v1.4.0 Design QA
+# v1.4.1 Design QA · UI publication review
+
+## 2026-08-27 현행 공개본 확인
+
+UI 소스가 빠진 배포는 아닙니다. 로컬과 GitHub `main`은 조사 시작 시 `6fd2e9e`로 일치했고, 무선 ADB로 가져온 설치 APK는 공개 v1.4.1 APK와 SHA-256 `91B5700052DECF3BCCBC67B17684CF90DF4B7C2955FCBD9A1AD1799DA472BBD0`가 같습니다. 이번 보완은 화면 자료·설명·검증 절차이며 APK와 기능 태그는 변경하지 않습니다.
+
+| 확인 항목 | 결과 |
+|---|---|
+| USB 분리 후 무선 ADB | PASS, 무선 단독 경로로 앱 버전·서비스 및 설치 APK 읽기 |
+| 숫자·손잡이 후광, 연속 트랙, 프리셋 | PASS, 현행 한국어 화면에서 확인 |
+| 적용 전/적용 중 버튼 | PASS, 초안 `0`과 실제 `+75`를 구분하고 두 버튼 상태를 한·영 화면으로 기록 |
+| 한국어·영어 설정 영역 | PASS, 재부팅 선택 OFF·복원·진단과 한계 안내를 실제 캡처로 확인 |
+| 공개 화면 픽셀 | PASS, 7개 출력이 각 원본의 지정 영역과 픽셀 차이 0 |
+| 기존 선택 이미지 손상 의심 | 재현 안 됨, 기존 원본과 공개 자르기 영역도 픽셀 차이 0; 이미지 손상으로 기록하지 않음 |
+| 디자인 문서 버전 | v1.4.0 이력은 보존하고 v1.4.1 현재 화면·상태 설명 추가 |
+| 휴대폰 설정 보존 | `+75` 관리와 재부팅 선택 OFF 유지, 영어 촬영 후 시스템 언어 추종으로 복귀 |
+
+### 현재 공개 화면
+
+- 적용 중: [한국어](docs/images/app-home-ko-v1.4.1.png), [English](docs/images/app-home-en-v1.4.1.png)
+- 선택만 한 상태: [한국어](docs/images/app-select-offset-ko-v1.4.1.png), [English](docs/images/app-select-offset-en-v1.4.1.png)
+- 하단 설정: [한국어](docs/images/app-settings-ko-v1.4.1.png), [English](docs/images/app-settings-en-v1.4.1.png)
+- [복원 대기](docs/images/app-restore-pending-ko-v1.4.1.png): 8월 26일 검증 빌드의 실제 상태 캡처를 유지하며, 이번에 서버를 중지해 재촬영하지는 않음
+
+v1.4.0의 디자인을 v1.4.1이 계승하며, 버튼의 낮은 강조는 적용값과 선택값이 같은 상태입니다. 이를 효과 누락으로 오해하지 않도록 README와 두 설명서에 명시했습니다. 폰의 사용자 지정 시스템 글꼴도 스크린샷에 반영되므로 시안의 글꼴과 다를 수 있습니다.
+
+### 재현 가능한 이미지 검증
+
+Windows에서 비공개 원본 캡처가 `build-evidence/`에 있을 때 실행합니다.
+
+```powershell
+.\scripts\export-ui-screenshots.ps1
+.\scripts\export-ui-screenshots.ps1 -Check
+.\scripts\export-ui-screenshots.ps1 -PublicOnly
+```
+
+스크립트는 [이미지 명세](docs/images/ui-screenshots-v1.4.1.json)의 원본 SHA-256·자르기 좌표·출력 SHA-256을 검사합니다. 리사이즈·덧칠 없이 잘라 저장한 뒤 모든 RGBA 픽셀을 대조합니다. 원본은 Git에 포함하지 않으며 픽셀 검사가 시각·기능 검토를 대신하지는 않습니다.
+
+`-PublicOnly`는 비공개 원본이나 그래픽 라이브러리 없이 공개 PNG 해시·규격과 앱·설명서 제목 버전을 확인합니다. GitHub Android CI에서도 이 모드를 실행합니다. 픽셀 원본 대조는 로컬에서 별도로 수행해야 합니다.
+
+## 이전 v1.4.0 검증 이력
 
 ## 비교 대상
 
@@ -33,6 +73,6 @@
 4. 기준 시안과 실기기 화면을 같은 비교 이미지에 넣어 숫자와 손잡이 후광이 약한 P2 차이를 확인하고 불투명도를 한 차례 높였습니다.
 5. 최종 실기기 캡처에서 P0/P1/P2 미해결 항목이 없음을 확인했습니다. 7개 프리셋이 시안의 4개보다 조밀한 것은 사용자 요청 기능을 반영한 의도된 차이입니다.
 
-## 최종 판정
+## v1.4.0 당시 판정
 
 final result: passed

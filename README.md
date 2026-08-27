@@ -9,8 +9,8 @@
   <img src="docs/images/app-home-en-v1.4.1.png" width="360" alt="Auto Brightness Offset English interface on Galaxy Z Fold8">
 </p>
 
-> 실제 Galaxy Z Fold8 화면입니다. 공개 이미지에서는 통신사·시간·알림·배터리·내비게이션 표시가 있는 시스템 영역만 잘랐습니다.<br>
-> These are real Galaxy Z Fold8 captures. Only the system status and navigation bars were cropped for privacy.
+> 실제 Galaxy Z Fold8의 v1.4.1 화면입니다. 시스템 상태·내비게이션 영역을 제외하고, 설명에 필요한 앱 영역만 원본 픽셀 그대로 잘랐습니다. 글꼴은 시험 단말의 시스템 글꼴입니다.<br>
+> Real v1.4.1 captures from a Galaxy Z Fold8. Crops exclude system bars and focus on the relevant app area without altering pixels. The screenshots use the test phone's system font.
 
 ## 한국어
 
@@ -62,6 +62,25 @@
 
 숫자는 화면 밝기 퍼센트가 아니라 **자동 밝기 곡선의 보정 강도**입니다. `0`을 적용하거나 `원래 값 복원`을 누르면 앱의 임시 보정이 해제되고 시스템 자동 밝기로 돌아갑니다.
 
+### 현재 UI와 버튼 상태
+
+v1.4.0에서 적용한 디자인을 v1.4.1에서도 사용하며, v1.4.1에는 연결 중단·복원 대기 표시가 추가됐습니다.
+
+- 숫자 이중 후광, 손잡이 후광, 손잡이 아래에서도 끊기지 않는 슬라이더
+- 숫자 뒤 중첩 사각형을 제거한 7단계 프리셋과 선택 테두리
+- 선택값을 바꿨을 때 밝게 표시되는 다층 그라데이션 적용 버튼
+- 선택값이 적용값과 같으면 `현재 +75 적용 중`처럼 표시하며 중복 적용을 막는 낮은 강조 상태
+- `보정 일시 중지`·`원래 값 복원 대기`는 정상 적용과 다른 문구·색으로 구분
+
+아래는 **0을 선택만 한 상태**입니다. 작은 `현재 적용값 0.75`가 실제 유지 중인 보정이고, 큰 `0`은 적용 대기 중인 선택값입니다. 밝은 버튼을 누르기 전까지 보정은 바뀌지 않습니다.
+
+<p align="center">
+  <img src="docs/images/app-select-offset-ko-v1.4.1.png" width="320" alt="v1.4.1 한국어: 0 선택, +75 적용 유지, 밝은 적용 버튼">
+  <img src="docs/images/app-select-offset-en-v1.4.1.png" width="320" alt="v1.4.1 English: zero selected, +75 still applied, enabled Apply button">
+</p>
+
+[화면별 상세 설명](docs/USER_GUIDE_KO.md#화면을-읽는-방법) · [현재 UI 검증 기록](design-qa.md)
+
 ### Wi-Fi 없는 야외 사용
 
 집에서 USB ADB로 Shizuku를 시작한 뒤에는 USB 케이블을 빼고 Wi-Fi와 무선 디버깅을 꺼도 Fold8에서 보정이 동작했습니다. 먼저 Shizuku와 이 앱을 모두 `배터리 → 제한 없음` 및 삼성의 `절전 상태로 전환하지 않을 앱`에 추가해야 합니다. 절전 예외 적용 뒤 Wi-Fi OFF 상태에서 화면을 켠 백그라운드 3분과 화면 잠금·재점등 시험을 통과했습니다.
@@ -91,7 +110,7 @@
 | 아이콘 축소판 설치·표시 | PASS |
 | Shizuku 중지 시 일시 중지·반복 오류 차단 | PASS |
 | 연결 끊김 중 복원 예약 → Shizuku 재시작·앱 열기 → 자동 복원 | PASS |
-| USB 시작 후 Wi-Fi·무선 디버깅 OFF 운용 | PASS |
+| 두 앱 절전 예외 후 Wi-Fi·무선 디버깅 OFF 운용 | PASS, 백그라운드 3분 및 화면 잠금·재점등 범위 |
 | Android 알림 권한 요청과 관리 알림 표시 | PASS |
 | 설치 APK와 기기 `base.apk` 해시 | PASS, 일치 |
 
@@ -146,6 +165,18 @@ See the illustrated [English setup and user guide](docs/USER_GUIDE_EN.md) for ev
 - No Internet permission, account, ads, analytics, or personal-data collection
 
 The number is a **curve-offset strength**, not a brightness percentage. Applying `0` or choosing **Restore original** clears the app's temporary override and returns control to system adaptive brightness.
+
+### Current UI and button states
+
+Version 1.4.1 retains the visual design introduced in 1.4.0 and adds explicit disconnected and pending-restore states.
+
+- Dual number glow, a glowing thumb, and a continuous slider track
+- Seven presets without the former overlapping rectangle behind each number
+- A brighter, layered-gradient Apply button when the selected value differs from the active offset
+- A subdued **Offset +75 active** button when no new value needs applying; this is a state indicator, not a missing visual effect
+- Distinct wording and colors for **Offset paused** and **Restore pending**
+
+In the selection screenshots above, the large **0** is a draft while **Applied value 0.75** remains active. Selecting a preset alone does not change the offset. See [how to read the screen](docs/USER_GUIDE_EN.md#reading-the-screen) and the [current UI verification record](design-qa.md).
 
 ### Outdoor use without Wi-Fi
 

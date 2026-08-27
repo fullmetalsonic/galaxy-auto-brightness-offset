@@ -148,6 +148,19 @@ This is a debug-signed personal-test package, not a Google Play production-signe
 
 If you denied access accidentally, open Shizuku's authorized-app list and allow Auto Brightness Offset there.
 
+### Reading the screen
+
+| Item | Meaning and example |
+|---|---|
+| Ready to apply | Shizuku and adaptive-brightness prerequisites are ready. This label alone does not mean offset management is active. |
+| Large number | Your selected draft. Choosing `0` does not clear an existing offset until you tap Apply. |
+| Applied value 0.75 | Active offset strength `+75` in internal units, not 75% panel brightness. |
+| Bright Apply selected offset button | The draft differs from the active offset and can be applied. |
+| Subdued Offset +75 active button | The draft already matches the active offset, so duplicate application is disabled. The lower emphasis is intentional. |
+| Offset paused / Restore pending | Do not interpret a saved number as active management. Restore Shizuku access and check the state again. |
+
+Number and thumb glows, the continuous track, seven presets, and the layered Apply button were introduced in 1.4.0. Version 1.4.1 adds clearer connection and restore states. Fonts can differ with the phone's system font.
+
 ## Stage 8 — Choose an offset
 
 ### Slider
@@ -161,6 +174,10 @@ If you denied access accidentally, open Shizuku's authorized-app list and allow 
 ### Quick presets
 
 Choose `-75`, `-50`, `-25`, `0`, `+25`, `+50`, or `+75` with one tap.
+
+![Zero selected while +75 remains active](images/app-select-offset-en-v1.4.1.png)
+
+This screenshot shows a **draft of 0**, while **Applied value 0.75** is still active. Select `+75` again to discard the draft without applying a change.
 
 Start with a small value such as `+10` or `-10`. Values from `+75` to `+100` and `-75` to `-100` are intentionally strong.
 
@@ -182,7 +199,7 @@ If the first change is subtle, move in 5- or 10-point steps. Samsung brightness 
 After a reboot:
 
 1. Open Shizuku.
-2. Start Shizuku again through wireless debugging.
+2. Start Shizuku again through wireless debugging or the USB ADB procedure in Stage 5.
 3. Open Auto Brightness Offset.
 4. Confirm **Ready to apply** and the active value.
 
@@ -249,7 +266,7 @@ The report is not designed to contain accounts, passwords, photos, or screen con
 
 - The app has no Internet permission.
 - It uses no account, ads, analytics, location, camera, microphone, or contacts.
-- It stores only management state, the last offset, and the reapply-after-reboot choice.
+- It stores management state, the last offset, the reapply-after-reboot choice, pending restore, and notification-prompt state locally. See [Privacy and permissions](PRIVACY.md) for the complete list.
 - It does not save or transmit ambient-light history or screen content.
 - Shizuku's own behavior and networking follow Shizuku's policies.
 - Exempting both apps from battery restrictions allows longer background operation and may use more battery than the default policy.

@@ -4,6 +4,17 @@ Shizuku 연결이 끊겼을 때의 상태·복원 흐름과 Android 관리 알�
 
 ## 한국어
 
+### 현재 UI · 2026-08-27 문서 보완
+
+숫자·손잡이 후광, 연속 슬라이더, 7단계 프리셋, 숫자 뒤 중첩 사각형 제거, 다층 적용 버튼과 축소 래스터 아이콘은 v1.4.0에서 반영되어 이 APK에도 포함돼 있습니다. v1.4.1은 여기에 `보정 일시 중지`·`원래 값 복원 대기` 상태 표시를 더했습니다.
+
+밝은 `선택한 보정 적용`은 아직 적용하지 않은 선택값이 있을 때, 낮은 강조의 `현재 +75 적용 중`은 선택값과 적용값이 같을 때 표시됩니다. [한국어 화면 설명](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/blob/main/docs/USER_GUIDE_KO.md#화면을-읽는-방법)과 [UI 검증 기록](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/blob/main/design-qa.md)을 보강했습니다. APK·태그·기능은 변경하지 않았습니다.
+
+<p>
+  <img src="https://raw.githubusercontent.com/fullmetalsonic/galaxy-auto-brightness-offset/main/docs/images/app-select-offset-ko-v1.4.1.png" width="300" alt="선택한 0과 적용 중인 +75를 구분하는 한국어 UI">
+  <img src="https://raw.githubusercontent.com/fullmetalsonic/galaxy-auto-brightness-offset/main/docs/images/app-select-offset-en-v1.4.1.png" width="300" alt="English UI with a draft of zero and an active offset of +75">
+</p>
+
 ### 주요 변경
 
 - Shizuku 서버가 중지되면 조도 센서 추적을 멈추고 `보정 일시 중지`로 표시
@@ -47,6 +58,12 @@ Samsung Freecess가 Shizuku 또는 앱을 동결하면 서버 PID가 살아 있�
 이 APK는 개인 테스트·사이드로드용 디버그 서명 릴리스입니다. Google Play 배포용 서명 패키지가 아닙니다.
 
 ## English
+
+### Current UI · documentation supplement, 2026-08-27
+
+This APK already includes the 1.4.0 design: number and thumb glows, a continuous slider, seven presets without overlapping number rectangles, a layered Apply button, and the scaled-down raster icon. Version 1.4.1 adds explicit paused and pending-restore states.
+
+A bright **Apply selected offset** button indicates an unapplied draft; a subdued **Offset +75 active** button indicates that the selected value is already active. The [English screen guide](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/blob/main/docs/USER_GUIDE_EN.md#reading-the-screen) and screenshot evidence were refreshed. This is a documentation update, not a new APK, tag, or feature release.
 
 ### Changes
 

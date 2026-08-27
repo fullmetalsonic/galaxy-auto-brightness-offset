@@ -1,0 +1,55 @@
+{
+  "appVersion": "1.4.1",
+  "reviewedOn": "2026-08-27",
+  "images": [
+    {
+      "file": "app-home-ko-v1.4.1.png",
+      "source": "ui-cover-explicit-2026-08-27.png",
+      "sourceSha256": "9CAE9EC3ACAEFD7A9BA983290158D37F0EE4B528AF41DBAFD8F3BE43D8DCFFB1",
+      "outputSha256": "0C53192B9207137DD075839DDF67B787C2ADC5E47AA73496707041B306163AF1",
+      "crop": { "x": 0, "y": 104, "width": 1248, "height": 1736 }
+    },
+    {
+      "file": "app-home-en-v1.4.1.png",
+      "source": "app-home-en-v1.4.1-raw.png",
+      "sourceSha256": "4D639789CAC2260CAF09416AADF626F785B30AB6A9B854E7B6CFC1EB247D6278",
+      "outputSha256": "5F8D44AFCC10B130CAE51B75C237328ADBAEEB3BF33FD60619199759D325CB91",
+      "crop": { "x": 0, "y": 104, "width": 1248, "height": 1736 }
+    },
+    {
+      "file": "app-select-offset-ko-v1.4.1.png",
+      "source": "ui-select-ko-2026-08-27.png",
+      "sourceSha256": "532C00F515AA1C5D65F84A48465E4417845FBD5D5C44430360EEB21DE150CB59",
+      "outputSha256": "4B58771BA028F5105B46038E120866B3005F088F399232309BAAB84E8033E8D2",
+      "crop": { "x": 0, "y": 104, "width": 1248, "height": 1736 }
+    },
+    {
+      "file": "app-select-offset-en-v1.4.1.png",
+      "source": "ui-select-en-2026-08-27.png",
+      "sourceSha256": "5C349E564C6C5E638C24CAA5224ED6D9F31627FA7ED4B3C7909527F5253C6F48",
+      "outputSha256": "B3D94614FC04BFF50F74D80E1ACD970A14A2AB8B6B7BC4786D81EC003FF74063",
+      "crop": { "x": 0, "y": 104, "width": 1248, "height": 1736 }
+    },
+    {
+      "file": "app-settings-ko-v1.4.1.png",
+      "source": "ui-settings-ko-2026-08-27.png",
+      "sourceSha256": "AC06568D0EFEC08FC343ADAE09641BF2FA06B1E17EF2DAB1D9000BDAC9974FB3",
+      "outputSha256": "4BE0C1F210A361D20008B62FEB005993FF788D0F452DF8FA52A9CCDB925175A3",
+      "crop": { "x": 0, "y": 310, "width": 1248, "height": 1360 }
+    },
+    {
+      "file": "app-settings-en-v1.4.1.png",
+      "source": "ui-settings-en-2026-08-27.png",
+      "sourceSha256": "DC41259954E84CF1FD167B779F352F43DF95EB092FFCDACDBD701A3CB56BA2DA",
+      "outputSha256": "2CA0E9EF50042DF33F8AF55854D43EA78489763E7DE025B469760A9C7F263936",
+      "crop": { "x": 0, "y": 310, "width": 1248, "height": 1360 }
+    },
+    {
+      "file": "app-restore-pending-ko-v1.4.1.png",
+      "source": "app-restore-pending-ko-v1.4.1-final-raw.png",
+      "sourceSha256": "303A363264B3F320E03C7E7D1DBB666530D7983AD3C0C25D8F8C6EF06F123382",
+      "outputSha256": "6DCB1BAB612C1400AE6DFE95C2D549BBC9DEC64C59D46B59DB835E50B262F9BA",
+      "crop": { "x": 0, "y": 104, "width": 1248, "height": 1760 }
+    }
+  ]
+}
