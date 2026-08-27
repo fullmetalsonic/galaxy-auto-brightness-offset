@@ -57,7 +57,12 @@
 - 시각·사용성 검토: 한·영 선택 화면의 초안/적용값과 버튼 상태, 설정 화면의 OFF 상태·복원·진단 안내 확인. 앱 코드·버전 변경 0건
 - 사용 중인 +75 보정, 재부팅 재적용 OFF, 시스템 언어 추종을 보존. 확인 중 서버 중지·보정 재적용·앱 재설치 없음
 - 새로운 장시간 야외·HDR·접힘/펼침 시험은 수행하지 않음. 기존 시험 결과와 한계를 그대로 유지
-- 원격 반영과 신규 CI 결과는 게시 후 아래에 추가 기록
+- UI 자료 커밋: `d86959b3fa1e488d07d73356ae7857ed26bde0b3`, Public 저장소 main 반영 완료
+- 신규 [Android CI 33037733219](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/actions/runs/33037733219): 공개 UI 자료 검사, `testDebugUnitTest`, `lintDebug`, `assembleDebug`, APK 업로드 모두 PASS
+- 인증 없는 공개 다운로드: 이미지 7개의 SHA-256 일치, main README·디자인 QA·한영 상세 설명서 내용 일치 PASS
+- 저장소·Release·한영 상세 설명서 페이지 HTTP 200. Release 본문과 로컬 한영 릴리스 노트 일치 PASS
+- 기능 태그는 기존 `e4de65679da8241427833c9c02ef8e4cec824254` 유지, Release APK 크기·digest 변경 없음
+- 후속 검증 결과만 기록하는 문서 커밋은 `[skip ci]`로 게시. 이미 통과한 앱·CI 스크립트·이미지에는 추가 변경 없음
 
 ## 공개 APK
 

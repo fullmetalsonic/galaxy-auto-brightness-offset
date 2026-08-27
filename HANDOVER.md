@@ -10,6 +10,7 @@
 - 현재 사용자 상태: `+75` 적용 중, 재부팅 선택 OFF, 시스템 언어 추종. 확인·촬영 후 이 상태를 유지
 - 무선 디버깅 ON, Wi-Fi ON, USB 케이블 분리. 사설 주소·포트·페어링 코드는 공개 기록에 남기지 않음
 - APK·버전·기능 태그는 그대로 유지하며 README·한영 설명서·디자인 QA·Release 설명만 갱신
+- 공개 반영 완료: `d86959b`, [Android CI 33037733219](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/actions/runs/33037733219) PASS. 공개 이미지 7개 해시·현재 문서·Release 본문 일치와 페이지 접근 확인. 상세는 [배포 감사](docs/PUBLICATION_AUDIT_v1.4.1.md) 참조
 
 ### 2026-08-26 배포 직후 상태 (이력 보존)
 

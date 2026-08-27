@@ -10,6 +10,8 @@
 - 기존 선택 이미지 손상 의심은 원본 대조 0픽셀 차이로 배제; 실제 UI 손상으로 단정하지 않음
 - 비공개 원본 없이도 공개 PNG 해시·규격·문서 버전을 검사하는 GitHub CI 단계 추가
 - 사용자 `+75`, 재부팅 선택 OFF, 시스템 언어 추종 상태를 보존하며 앱 버전·APK·기능 태그는 유지
+- 공개 main에 `d86959b` 반영, v1.4.1 Release 한영 설명 갱신. [Android CI 33037733219](https://github.com/fullmetalsonic/galaxy-auto-brightness-offset/actions/runs/33037733219) 공개 문서 검사·단위시험·Lint·Debug 빌드 PASS
+- 공개 이미지 7개 재다운로드 해시 일치, README·한영 설명서·디자인 QA 내용 일치, 공개 페이지 HTTP 200 확인. 자세한 결과는 [배포 감사](PUBLICATION_AUDIT_v1.4.1.md)에 기록
 
 ## 2026-08-26 · v1.4.1 공개 배포 완료
 
